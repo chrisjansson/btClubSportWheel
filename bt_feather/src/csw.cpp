@@ -25,6 +25,7 @@
 #include "fanatec.h"
 // #include "iWRAP.h"
 #include "Debouncer.h"
+#include "Joystick.h"
 
 /* WT12 (Bluetooth specifics) */
 #define WT12 Serial1
