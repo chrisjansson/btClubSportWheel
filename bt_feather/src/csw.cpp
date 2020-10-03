@@ -48,7 +48,7 @@ bool in_changed;
 // void my_iwrap_rsp_list_result(uint8_t link_id, const char *mode, uint16_t blocksize, uint32_t elapsed_time, uint16_t local_msc, uint16_t remote_msc, const iwrap_address_t *bd_addr, uint16_t channel, uint8_t direction, uint8_t powermode, uint8_t role, uint8_t crypt, uint16_t buffer, uint8_t eretx);
 // int my_iwrap_debug(const char *data);
 // void my_iwrap_evt_no_carrier(uint8_t link_id, uint16_t error_code, const char *message);
-// void hid_output(uint8_t link_id, uint16_t data_length, const uint8_t *data);
+void hid_output(uint8_t link_id, uint16_t data_length, const uint8_t *data);
 /* END WT12 */
 
 void setup();
@@ -1139,6 +1139,8 @@ int my_iwrap_debug(const char *data)
   return Serial.print(data);
 }
 #endif
+
+typedef int iwrap_address_t;
 
 void my_iwrap_evt_ring(uint8_t link_id, const iwrap_address_t *address, uint16_t channel, const char *profile)
 {
