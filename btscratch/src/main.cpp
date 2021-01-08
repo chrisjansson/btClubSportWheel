@@ -15,9 +15,9 @@
 #include <bluefruit.h>
 
 BLEDis bledis;
-BLEHidAdafruit blehid;
+//BLEHidAdafruit blehid;
 
-bool hasKeyPressed = false;
+//bool hasKeyPressed = false;
 
 
 /**
@@ -27,20 +27,20 @@ bool hasKeyPressed = false;
  * The LED bit map is as follows: (also defined by KEYBOARD_LED_* )
  *    Kana (4) | Compose (3) | ScrollLock (2) | CapsLock (1) | Numlock (0)
  */
-void set_keyboard_led(uint16_t conn_handle, uint8_t led_bitmap)
-{
-    (void) conn_handle;
-
-    // light up Red Led if any bits is set
-    if ( led_bitmap )
-    {
-        ledOn( LED_RED );
-    }
-    else
-    {
-        ledOff( LED_RED );
-    }
-}
+//void set_keyboard_led(uint16_t conn_handle, uint8_t led_bitmap)
+//{
+//    (void) conn_handle;
+//
+//    // light up Red Led if any bits is set
+//    if ( led_bitmap )
+//    {
+//        ledOn( LED_RED );
+//    }
+//    else
+//    {
+//        ledOff( LED_RED );
+//    }
+//}
 
 
 void startAdv(void)
@@ -51,7 +51,7 @@ void startAdv(void)
     Bluefruit.Advertising.addAppearance(BLE_APPEARANCE_HID_JOYSTICK);
 
     // Include BLE HID service
-    Bluefruit.Advertising.addService(blehid);
+//    Bluefruit.Advertising.addService(blehid);
 
     // There is enough room for the dev name in the advertising packet
     Bluefruit.Advertising.addName();
@@ -103,10 +103,10 @@ void setup()
      * up to 11.25 ms. Therefore BLEHidAdafruit::begin() will try to set the min and max
      * connection interval to 11.25  ms and 15 ms respectively for best performance.
      */
-    blehid.begin();
+//    blehid.begin();
 
     // Set callback for set LED from central
-    blehid.setKeyboardLedCallback(set_keyboard_led);
+//    blehid.setKeyboardLedCallback(set_keyboard_led);
 
     /* Set connection interval (min, max) to your perferred value.
      * Note: It is already set by BLEHidAdafruit::begin() to 11.25ms - 15ms
@@ -122,14 +122,14 @@ void loop()
 {
     // Only send KeyRelease if previously pressed to avoid sending
     // multiple keyRelease reports (that consume memory and bandwidth)
-    if ( hasKeyPressed )
-    {
-        hasKeyPressed = false;
-        blehid.keyRelease();
+//    if ( hasKeyPressed )
+//    {
+//        hasKeyPressed = false;
+//        blehid.keyRelease();
 
         // Delay a bit after a report
-        delay(5);
-    }
+//        delay(5);
+//    }
 
     if (Serial.available())
     {
@@ -138,8 +138,8 @@ void loop()
         // echo
         Serial.write(ch);
 
-        blehid.keyPress(ch);
-        hasKeyPressed = true;
+//        blehid.keyPress(ch);
+//        hasKeyPressed = true;
 
         // Delay a bit after a report
         delay(5);
