@@ -16,7 +16,9 @@
 #include "manifest.h"
 
 BLEDis bledis;
-//BLEHidAdafruit blehid;
+
+BLEService blebat = BLEService(UUID16_SVC_BATTERY);
+BLECharacteristic blebatc = BLECharacteristic(UUID16_CHR_BATTERY_LEVEL);
 
 //bool hasKeyPressed = false;
 
@@ -53,6 +55,7 @@ void startAdv(void)
 
     // Include BLE HID service
 //    Bluefruit.Advertising.addService(blehid);
+    Bluefruit.Advertising.addService(blebat);
 
     // There is enough room for the dev name in the advertising packet
     Bluefruit.Advertising.addName();
@@ -70,6 +73,16 @@ void startAdv(void)
     Bluefruit.Advertising.setInterval(32, 244);    // in unit of 0.625 ms
     Bluefruit.Advertising.setFastTimeout(30);      // number of seconds in fast mode
     Bluefruit.Advertising.start(0);                // 0 = Don't stop advertising after n seconds
+}
+
+void setup_battery()
+{
+    blebat.begin();
+    blebatc.setProperties(CHR_PROPS_READ);
+    blebatc.setPermission(SECMODE_OPEN, SECMODE_NO_ACCESS);
+    blebatc.setFixedLen(1);
+    blebatc.begin();
+    blebatc.write8(42);
 }
 
 void setup()
@@ -116,8 +129,12 @@ void setup()
     /* Bluefruit.Periph.setConnInterval(9, 12); */
 
     // Set up and start advertising
+    setup_battery();
     startAdv();
 }
+
+int loops = 0;
+int battery = 0;
 
 void loop()
 {
@@ -134,15 +151,23 @@ void loop()
 
     if (Serial.available())
     {
-        char ch = (char) Serial.read();
+//        char ch = (char) Serial.read();
 
         // echo
-        Serial.write(ch);
+//        Serial.write(ch);
 
 //        blehid.keyPress(ch);
 //        hasKeyPressed = true;
 
         // Delay a bit after a report
         delay(5);
+        loops++;
+        if(loops > 200){
+            loops = 0;
+            battery = (battery + 1) % 100;
+            blebatc.write8(battery);
+            Serial.println("Set battery");
+
+        }
     }
 }
