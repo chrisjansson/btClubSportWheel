@@ -13,6 +13,7 @@
 *********************************************************************/
 #include <Arduino.h>
 #include <bluefruit.h>
+#include "manifest.h"
 
 BLEDis bledis;
 //BLEHidAdafruit blehid;
@@ -89,11 +90,11 @@ void setup()
 
     Bluefruit.begin();
     Bluefruit.setTxPower(4);    // Check bluefruit.h for supported values
-    Bluefruit.setName("Bluefruit52 CJ");
+    Bluefruit.setName(BLEDIS_NAME);
 
     // Configure and Start Device Information Service
-    bledis.setManufacturer("Adafruit Industries");
-    bledis.setModel("Bluefruit Feather 52");
+    bledis.setManufacturer(BLEDIS_MANUFACTURER);
+    bledis.setModel(BLEDIS_MODEL);
     bledis.begin();
 
     /* Start BLE HID
