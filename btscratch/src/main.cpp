@@ -20,6 +20,7 @@ BLEDis bledis;
 BLEService blebat = BLEService(UUID16_SVC_BATTERY);
 BLECharacteristic blebatc = BLECharacteristic(UUID16_CHR_BATTERY_LEVEL);
 
+
 //bool hasKeyPressed = false;
 
 
@@ -75,13 +76,34 @@ void startAdv(void)
     Bluefruit.Advertising.start(0);                // 0 = Don't stop advertising after n seconds
 }
 
+void cccd_callback(uint16_t conn_hdl, BLECharacteristic* chr, uint16_t cccd_value)
+{
+    // Display the raw request packet
+    Serial.print("CCCD Updated: ");
+    //Serial.printBuffer(request->data, request->len);
+    Serial.print(cccd_value);
+    Serial.println("");
+
+    // Check the characteristic this CCCD update is associated with in case
+    // this handler is used for multiple CCCD records.
+    if (chr->uuid == blebatc.uuid) {
+        if (chr->indicateEnabled(conn_hdl)) {
+            Serial.println("Temperature Measurement 'Indicate' enabled");
+        } else {
+            Serial.println("Temperature Measurement 'Indicate' disabled");
+        }
+    }
+}
+
 void setup_battery()
 {
     blebat.begin();
-    blebatc.setProperties(CHR_PROPS_READ);
+    blebatc.setProperties(CHR_PROPS_READ | CHR_PROPS_NOTIFY);
     blebatc.setPermission(SECMODE_OPEN, SECMODE_NO_ACCESS);
     blebatc.setFixedLen(1);
+    blebatc.setCccdWriteCallback(cccd_callback); //Not needed to enable notify feature, it's done by setProperties. However, service will not be implemented correctly.
     blebatc.begin();
+
     blebatc.write8(42);
 }
 
@@ -149,8 +171,6 @@ void loop()
 //        delay(5);
 //    }
 
-    if (Serial.available())
-    {
 //        char ch = (char) Serial.read();
 
         // echo
@@ -160,14 +180,13 @@ void loop()
 //        hasKeyPressed = true;
 
         // Delay a bit after a report
-        delay(5);
-        loops++;
-        if(loops > 200){
-            loops = 0;
-            battery = (battery + 1) % 100;
-            blebatc.write8(battery);
-            Serial.println("Set battery");
+    delay(5);
+    loops++;
+    if(loops > 1000){
+        loops = 0;
+        battery = (battery + 1) % 1000;
+        blebatc.notify8(battery);
+        Serial.println("Set battery");
 
-        }
     }
 }
