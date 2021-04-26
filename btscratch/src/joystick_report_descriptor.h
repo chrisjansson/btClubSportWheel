@@ -1,5 +1,5 @@
-#ifndef BTSCRATCH_JOYSTICK_REPORT_MAP_H
-#define BTSCRATCH_JOYSTICK_REPORT_MAP_H
+#ifndef BTSCRATCH_JOYSTICK_REPORT_DESCRIPTOR_H
+#define BTSCRATCH_JOYSTICK_REPORT_DESCRIPTOR_H
 
 static uint8_t joystick_report_desc[] = {
 
@@ -111,4 +111,4 @@ static uint8_t joystick_report_desc[] = {
         */
 };
 
-#endif //BTSCRATCH_JOYSTICK_REPORT_MAP_H
+#endif //BTSCRATCH_JOYSTICK_REPORT_DESCRIPTOR_H

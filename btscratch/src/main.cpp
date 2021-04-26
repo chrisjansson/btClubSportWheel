@@ -14,7 +14,7 @@
 #include <Arduino.h>
 #include <bluefruit.h>
 #include "manifest.h"
-#include "joystick_report_map.h"
+#include "joystick_report_descriptor.h"
 
 BLEDis bledis;
 
