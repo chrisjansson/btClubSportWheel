@@ -15,6 +15,7 @@
 #include <bluefruit.h>
 #include "manifest.h"
 #include "joystick_report_descriptor.h"
+#include "joystick_report_builder.h"
 
 BLEDis bledis;
 
@@ -22,6 +23,7 @@ BLEService blebat = BLEService(UUID16_SVC_BATTERY);
 BLECharacteristic blebatc = BLECharacteristic(UUID16_CHR_BATTERY_LEVEL);
 
 BLEHidGeneric hidService = BLEHidGeneric(1, 1, 0);
+JoystickReportBuilder joystickReportBuilder = JoystickReportBuilder();
 
 //bool hasKeyPressed = false;
 
@@ -167,21 +169,23 @@ int battery = 0;
 //uint8_t data[3];
 uint8_t buttons[32];
 
+uint8_t button = 0;
+
 void loop()
 {
-    buttons[0] += 1;
-    buttons[1] += 1;
-    buttons[2] += 1;
-    buttons[3] += 1;
-    buttons[4] += 1;
-    buttons[5] += 1;
-    buttons[6] += 1;
-    buttons[7] += 1;
-    buttons[8] += 1;
-    buttons[9] += 1;
-    buttons[10] += 1;
-    buttons[11] += 1;
-    buttons[12] += 1;
+//    buttons[0] += 1;
+//    buttons[1] += 1;
+//    buttons[2] += 1;
+//    buttons[3] += 1;
+//    buttons[4] += 1;
+//    buttons[5] += 1;
+//    buttons[6] += 1;
+//    buttons[7] += 1;
+//    buttons[8] += 1;
+//    buttons[9] += 1;
+//    buttons[10] += 1;
+//    buttons[11] += 1;
+//    buttons[12] += 1;
     // Only send KeyRelease if previously pressed to avoid sending
     // multiple keyRelease reports (that consume memory and bandwidth)
 //    if ( hasKeyPressed )
@@ -213,7 +217,13 @@ void loop()
 //    }
 
 //    hidService.inputReport(1, data, 3);
-    hidService.inputReport(1, buttons, 15);
-    delay(5);
-    delay(5);
+
+    joystickReportBuilder.setButton(button, 1);
+    joystickReportBuilder.setHat(button % 9);
+    hidService.inputReport(1, joystickReportBuilder.getReport(), 16);
+    delay(500);
+    joystickReportBuilder.clear();
+    button += 1;
+    button = button % 88;
+//    delay(5);
 }

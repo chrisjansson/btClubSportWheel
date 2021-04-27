@@ -19,7 +19,7 @@ static uint8_t joystick_report_desc[] = {
         0x81, 0x02,                    //   INPUT (Data,Var,Abs)
         //   no padding ( 88 )
 //
-        // left stick axis (16bits)
+        // left stick axis (32 bits)
         0x05, 0x01,                    //   USAGE_PAGE (Generic Desktop)
         0x09, 0x30,                    //   USAGE (X)
         0x09, 0x31,                    //   USAGE (Y)
@@ -30,22 +30,24 @@ static uint8_t joystick_report_desc[] = {
         0x75, 0x08,                    //   REPORT_SIZE (8)
         0x95, 0x04,                    //   REPORT_COUNT (4)
         0x81, 0x02,                    //   INPUT (Data,Var,Abs)
-//        //   no padding ( 16 )
+//        //   no padding ( 32 )
 //
 //
-//        // Hat switch (4bits)
-//        0x05, 0x01,                    //   USAGE_PAGE (Generic Desktop)
-//        0x09, 0x39,                    //   USAGE (Hat)
-//        0x15, 0x00,                    //   LOGICAL_MINIMUM (0)
-//        0x25, 0x07,                    //   LOGICAL_MAXIMUM (7)
-//        0x35, 0x00,                    //   Physical Minimum (0)
-//        0x46, 0x3B, 0x01,              //   Physical Maximum (315)
-//        0x65, 0x14,                    //   Unit (20)
-//        0x75, 0x04,                    //   REPORT_SIZE (4)
-//        0x95, 0x01,                    //   REPORT_COUNT (1)
-//        0x81, 0x42,                    //   INPUT (Data,Var,Abs)
-//        //   padding ( total 124 -> (-256) 132 (4x33) )
-//        0x95, 0x21,                    //   REPORT_COUNT (33)
+        // Hat switch (4bits)
+        0x05, 0x01,                    //   USAGE_PAGE (Generic Desktop)
+        0x09, 0x39,                    //   USAGE (Hat)
+        0x15, 0x00,                    //   LOGICAL_MINIMUM (0)
+        0x25, 0x07,                    //   LOGICAL_MAXIMUM (7)
+        0x35, 0x00,                    //   Physical Minimum (0)
+        0x46, 0x3B, 0x01,              //   Physical Maximum (315)
+        0x65, 0x14,                    //   Unit (20)
+        0x75, 0x08,                    //   REPORT_SIZE (8)
+        0x95, 0x01,                    //   REPORT_COUNT (1)
+        0x81, 0x42,                    //   INPUT (Data,Var,Abs)
+        // total 124
+
+//         padding 4
+//        0x95, 0x01,                    //   REPORT_COUNT (33)
 //        0x75, 0x04,                    //   REPORT_SIZE (4)
 //        0x81, 0x01,                    //   INPUT (Cnst,Ary,Abs)
 
