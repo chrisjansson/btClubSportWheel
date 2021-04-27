@@ -164,8 +164,24 @@ void setup()
 int loops = 0;
 int battery = 0;
 
+//uint8_t data[3];
+uint8_t buttons[32];
+
 void loop()
 {
+    buttons[0] += 1;
+    buttons[1] += 1;
+    buttons[2] += 1;
+    buttons[3] += 1;
+    buttons[4] += 1;
+    buttons[5] += 1;
+    buttons[6] += 1;
+    buttons[7] += 1;
+    buttons[8] += 1;
+    buttons[9] += 1;
+    buttons[10] += 1;
+    buttons[11] += 1;
+    buttons[12] += 1;
     // Only send KeyRelease if previously pressed to avoid sending
     // multiple keyRelease reports (that consume memory and bandwidth)
 //    if ( hasKeyPressed )
@@ -186,13 +202,18 @@ void loop()
 //        hasKeyPressed = true;
 
         // Delay a bit after a report
-    delay(5);
-    loops++;
-    if(loops > 1000){
-        loops = 0;
-        battery = (battery + 1) % 1000;
-        blebatc.notify8(battery);
-        Serial.println("Set battery");
+//    delay(5);
+//    loops++;
+//    if(loops > 1000){
+//        loops = 0;
+//        battery = (battery + 1) % 1000;
+//        blebatc.notify8(battery);
+//        Serial.println("Set battery");
+//
+//    }
 
-    }
+//    hidService.inputReport(1, data, 3);
+    hidService.inputReport(1, buttons, 15);
+    delay(5);
+    delay(5);
 }
