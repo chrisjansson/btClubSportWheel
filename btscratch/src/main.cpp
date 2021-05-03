@@ -16,11 +16,11 @@
 #include "manifest.h"
 #include "joystick_report_descriptor.h"
 #include "joystick_report_builder.h"
+#include "battery_service.h"
 
 BLEDis bledis;
 
-BLEService blebat = BLEService(UUID16_SVC_BATTERY);
-BLECharacteristic blebatc = BLECharacteristic(UUID16_CHR_BATTERY_LEVEL);
+BLEService blebat = BLEBatteryService();
 
 BLEHidGeneric hidService = BLEHidGeneric(1, 1, 0);
 JoystickReportBuilder joystickReportBuilder = JoystickReportBuilder();
@@ -80,35 +80,10 @@ void startAdv(void)
     Bluefruit.Advertising.start(0);                // 0 = Don't stop advertising after n seconds
 }
 
-void cccd_callback(uint16_t conn_hdl, BLECharacteristic* chr, uint16_t cccd_value)
-{
-    // Display the raw request packet
-    Serial.print("CCCD Updated: ");
-    //Serial.printBuffer(request->data, request->len);
-    Serial.print(cccd_value);
-    Serial.println("");
-
-    // Check the characteristic this CCCD update is associated with in case
-    // this handler is used for multiple CCCD records.
-    if (chr->uuid == blebatc.uuid) {
-        if (chr->indicateEnabled(conn_hdl)) {
-            Serial.println("Temperature Measurement 'Indicate' enabled");
-        } else {
-            Serial.println("Temperature Measurement 'Indicate' disabled");
-        }
-    }
-}
 
 void setup_battery()
 {
-    blebat.begin();
-    blebatc.setProperties(CHR_PROPS_READ | CHR_PROPS_NOTIFY);
-    blebatc.setPermission(SECMODE_OPEN, SECMODE_NO_ACCESS);
-    blebatc.setFixedLen(1);
-    blebatc.setCccdWriteCallback(cccd_callback); //Not needed to enable notify feature, it's done by setProperties. However, service will not be implemented correctly.
-    blebatc.begin();
-
-    blebatc.write8(42);
+//
 }
 
 void setup()
@@ -153,12 +128,11 @@ void setup()
      * min = 9*1.25=11.25 ms, max = 12*1.25= 15 ms
      */
     /* Bluefruit.Periph.setConnInterval(9, 12); */
-
-    // Set up and start advertising
-    setup_battery();
-
     hidService.setReportMap(joystick_report_desc, sizeof joystick_report_desc);
     hidService.begin();
+
+    // Set up and start advertising
+    blebat.begin();
 
     startAdv();
 }
