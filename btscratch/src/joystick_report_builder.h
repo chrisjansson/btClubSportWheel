@@ -9,6 +9,11 @@ class JoystickReportBuilder {
 public:
     void setButton(uint8_t button, uint8_t value);
     void setHat(uint8_t value);
+    void setAxisX(uint8_t value);
+    void setAxisY(uint8_t value);
+    void setClutch1(uint8_t value);
+    void setClutch2(uint8_t value);
+
     void clear();
     uint8_t* getReport();
 

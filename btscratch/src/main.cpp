@@ -220,6 +220,12 @@ void loop()
 
     joystickReportBuilder.setButton(button, 1);
     joystickReportBuilder.setHat(button % 9);
+    joystickReportBuilder.setAxisX(128);
+    joystickReportBuilder.setAxisY(128);
+    joystickReportBuilder.setClutch1(30);
+    joystickReportBuilder.setClutch2(200);
+//    joystickReportBuilder.setHat(button % 9);
+
     hidService.inputReport(1, joystickReportBuilder.getReport(), 16);
     delay(500);
     joystickReportBuilder.clear();
