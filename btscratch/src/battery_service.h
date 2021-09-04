@@ -14,6 +14,7 @@ class BLEBatteryService : public BLEService
 public:
     BLEBatteryService();
     err_t begin() override;
+    void setBatteryLevel(uint8_t value);
 
 private:
     BLECharacteristic* battery_characteristic;

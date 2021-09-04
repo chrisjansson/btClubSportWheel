@@ -27,18 +27,20 @@ err_t BLEBatteryService::begin() {
     battery_characteristic->setCccdWriteCallback(BLEBatteryService::cccdCallback); //Not needed to enable notify feature, it's done by setProperties. However, service will not be implemented correctly.
     battery_characteristic->begin();
     battery_characteristic->write8(100);
-    battery_characteristic->notify8(100);
 
-    return 0;
+    return ERROR_NONE;
 };
+
+void BLEBatteryService::setBatteryLevel(uint8_t value) {
+    battery_characteristic->notify8(value);
+}
 
 void BLEBatteryService::cccdCallback(uint16_t conn_hdl, BLECharacteristic* chr, uint16_t cccd_value){
     Serial.print("CCCD Updated: ");
-    Serial.printBuffer(request->data, request->len);
     Serial.print(cccd_value);
     Serial.println("");
 
-    if(chr->uuid == UUID16_SVC_BATTERY) {
+    if(chr->uuid == UUID16_CHR_BATTERY_LEVEL) {
         if (chr->indicateEnabled(conn_hdl)) {
             Serial.println("Battery service 'Indicate' enabled");
         } else {

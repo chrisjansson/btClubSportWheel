@@ -20,7 +20,7 @@
 
 BLEDis bledis;
 
-BLEService blebat = BLEBatteryService();
+BLEBatteryService blebat = BLEBatteryService();
 
 BLEHidGeneric hidService = BLEHidGeneric(1, 1, 0);
 JoystickReportBuilder joystickReportBuilder = JoystickReportBuilder();
@@ -128,8 +128,8 @@ void setup()
      * min = 9*1.25=11.25 ms, max = 12*1.25= 15 ms
      */
     /* Bluefruit.Periph.setConnInterval(9, 12); */
-    hidService.setReportMap(joystick_report_desc, sizeof joystick_report_desc);
-    hidService.begin();
+//    hidService.setReportMap(joystick_report_desc, sizeof joystick_report_desc);
+//    hidService.begin();
 
     // Set up and start advertising
     blebat.begin();
@@ -200,10 +200,12 @@ void loop()
     joystickReportBuilder.setClutch2(200);
 //    joystickReportBuilder.setHat(button % 9);
 
-    hidService.inputReport(1, joystickReportBuilder.getReport(), 16);
+//    hidService.inputReport(1, joystickReportBuilder.getReport(), 16);
     delay(500);
     joystickReportBuilder.clear();
     button += 1;
     button = button % 88;
-//    delay(5);
+
+    blebat.setBatteryLevel(button);
+    //    delay(5);
 }
