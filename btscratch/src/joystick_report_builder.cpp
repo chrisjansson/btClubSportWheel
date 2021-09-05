@@ -41,3 +41,7 @@ void JoystickReportBuilder::clear() {
 uint8_t* JoystickReportBuilder::getReport() {
     return _report;
 }
+
+unsigned int JoystickReportBuilder::getReportLength() {
+    return sizeof(_report)/sizeof(*_report);
+}

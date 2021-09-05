@@ -2,7 +2,7 @@
 #define BTSCRATCH_JOYSTICK_REPORT_BUILDER_H
 
 #include <Arduino.h>
-
+#include "joystick_report_descriptor.h"
 
 /// Report builder for report descriptor in joystick_report_descriptor.h
 class JoystickReportBuilder {
@@ -15,10 +15,15 @@ public:
     void setClutch2(uint8_t value);
 
     void clear();
+
     uint8_t* getReport();
+    unsigned int getReportLength();
+    unsigned int getReportId() {
+        return JOYSTICK_REPORT_ID;
+    }
 
 private:
-    uint8_t _report[15];
+    uint8_t _report[16];
 };
 
 #endif //BTSCRATCH_JOYSTICK_REPORT_BUILDER_H
