@@ -41,15 +41,8 @@ uint32_t max_delay = 150000; // overhead if below 120ms
 
 bool in_changed;
 
-// Bluetooth events
-// int iwrap_out(int len, unsigned char *data);
-// void my_iwrap_evt_ring(uint8_t link_id, const iwrap_address_t *address, uint16_t channel, const char *profile);
-// void my_iwrap_evt_hid_suspend(uint8_t link_id);
-// void my_iwrap_rsp_list_result(uint8_t link_id, const char *mode, uint16_t blocksize, uint32_t elapsed_time, uint16_t local_msc, uint16_t remote_msc, const iwrap_address_t *bd_addr, uint16_t channel, uint8_t direction, uint8_t powermode, uint8_t role, uint8_t crypt, uint16_t buffer, uint8_t eretx);
-// int my_iwrap_debug(const char *data);
-// void my_iwrap_evt_no_carrier(uint8_t link_id, uint16_t error_code, const char *message);
+/* Receive HID host to device */
 void hid_output(uint8_t link_id, uint16_t data_length, const uint8_t *data);
-/* END WT12 */
 
 void setup();
 void loop();
@@ -78,7 +71,6 @@ bool bt_connected;
 bool got_hid;
 bool show_fwvers;
 uint32_t timing;
-uint32_t timing_bt;
 uint32_t disp_timout;
 uint32_t usb_time;
 
@@ -114,10 +106,8 @@ void setup()
   btDebncer[17].interval(30);
   btDebncer[18].interval(30);
 
-/* WT12 */
-#ifndef IS_USB
-#else
-  Joystick.useManualSend(true);
+#ifdef IS_USB
+    Joystick.useManualSend(true);
 #endif // IS_USB
   whClear();
 
@@ -132,7 +122,7 @@ void setup()
 
 // debug
 #ifdef HAS_DEBUG
-  // iwrap_debug = my_iwrap_debug;
+
   Serial.begin(115200);
   Serial.println("MCU Ready");
   for (int i = 0; i < 100; ++i)
@@ -145,13 +135,12 @@ void setup()
   Serial.println("check for active connection...");
 #endif
 
-#ifndef IS_USB
+#ifdef IS_USB
+    bt_connected = true;
 #else
-  bt_connected = true;
 #endif
-  // iwrap_send_command("SET BT PAIR", iwrap_mode);
   timing = micros();
-  timing_bt = millis();
+  millis();
   usb_time = micros();
 }
 
@@ -639,13 +628,6 @@ void loop()
   }
 
 #ifndef IS_USB
-  // Read WT12 incoming data
-  uint16_t result;
-
-  while ((result = WT12.read()) < 256 && !got_hid)
-    iwrap_parse(result & 0xFF, iwrap_mode);
-  if (got_hid)
-    got_hid = false;
 #endif
   // timing = micros() - timing;
   // if(timing > 550)  Serial.println(String("timing: ") + timing);
@@ -659,99 +641,6 @@ void whButton(uint8_t button, bool val)
 #ifdef IS_USB
   Joystick.button(button, val);
 #else
-  uint8_t old;
-  if (--button >= 48)
-    return;
-  if (button >= 40)
-  {
-    old = hid_data[8];
-    if (val)
-      hid_data[8] |= (0x1 << (button - 40));
-    else
-      hid_data[8] &= ~(0x1 << (button - 40));
-    if (old != hid_data[8])
-    {
-      in_changed = true;
-#ifdef HAS_DEBUG
-      Serial.println(String("whButton: new input! ") + old + " -> " + hid_data[8]);
-#endif
-    }
-  }
-  else if (button >= 32)
-  {
-    old = hid_data[7];
-    if (val)
-      hid_data[7] |= (0x1 << (button - 32));
-    else
-      hid_data[7] &= ~(0x1 << (button - 32));
-    if (old != hid_data[7])
-    {
-      in_changed = true;
-#ifdef HAS_DEBUG
-      Serial.println(String("whButton: new input! ") + old + " -> " + hid_data[7]);
-#endif
-    }
-  }
-  else if (button >= 24)
-  {
-    old = hid_data[6];
-    if (val)
-      hid_data[6] |= (0x1 << (button - 24));
-    else
-      hid_data[6] &= ~(0x1 << (button - 24));
-    if (old != hid_data[6])
-    {
-      in_changed = true;
-#ifdef HAS_DEBUG
-      Serial.println(String("whButton: new input! ") + old + " -> " + hid_data[6]);
-#endif
-    }
-  }
-  else if (button >= 16)
-  {
-    old = hid_data[5];
-    if (val)
-      hid_data[5] |= (0x1 << (button - 16));
-    else
-      hid_data[5] &= ~(0x1 << (button - 16));
-    if (old != hid_data[5])
-    {
-      in_changed = true;
-#ifdef HAS_DEBUG
-      Serial.println(String("whButton: new input! ") + old + " -> " + hid_data[5]);
-#endif
-    }
-  }
-  else if (button >= 8)
-  {
-    old = hid_data[4];
-    if (val)
-      hid_data[4] |= (0x1 << (button - 8));
-    else
-      hid_data[4] &= ~(0x1 << (button - 8));
-    if (old != hid_data[4])
-    {
-      in_changed = true;
-#ifdef HAS_DEBUG
-      Serial.println(String("whButton: new input! ") + old + " -> " + hid_data[4]);
-#endif
-    }
-  }
-  else
-  {
-    old = hid_data[3];
-    if (val)
-      hid_data[3] |= (0x1 << (button));
-    else
-      hid_data[3] &= ~(0x1 << (button));
-    if (old != hid_data[3])
-    {
-      in_changed = true;
-#ifdef HAS_DEBUG
-      Serial.println(String("whButton: new input! ") + old + " -> " + hid_data[3]);
-#endif
-    }
-  }
 #endif
 }
 
@@ -763,24 +652,6 @@ void whStick(unsigned int x, unsigned int y)
   Joystick.X(x);
   Joystick.Y(y);
 #else
-  uint8_t old = hid_data[9];
-  hid_data[9] = x & 0xFF;
-  if (old != hid_data[9])
-  {
-    in_changed = true;
-#ifdef HAS_DEBUG
-    Serial.println(String("whStick X: new input! ") + old + " -> " + hid_data[9]);
-#endif
-  }
-  old = hid_data[10];
-  hid_data[10] = y & 0xFF;
-  if (old != hid_data[10])
-  {
-    in_changed = true;
-#ifdef HAS_DEBUG
-    Serial.println(String("whStick Y: new input! ") + old + " -> " + hid_data[10]);
-#endif
-  }
 #endif
 }
 
@@ -790,24 +661,6 @@ void whDoubleAxis(unsigned int x, unsigned int y)
   Joystick.clutch1(x);
   Joystick.clutch2(y);
 #else
-  uint8_t old = hid_data[9];
-  hid_data[9] = x & 0xFF;
-  if (old != hid_data[9])
-  {
-    in_changed = true;
-#ifdef HAS_DEBUG
-    Serial.println(String("whStick X: new input! ") + old + " -> " + hid_data[9]);
-#endif
-  }
-  old = hid_data[10];
-  hid_data[10] = y & 0xFF;
-  if (old != hid_data[10])
-  {
-    in_changed = true;
-#ifdef HAS_DEBUG
-    Serial.println(String("whStick Y: new input! ") + old + " -> " + hid_data[10]);
-#endif
-  }
 #endif
 }
 
@@ -820,15 +673,6 @@ void whDoubleClutch(unsigned int x, unsigned int y)
   Joystick.clutch1(x);
   Joystick.clutch2(0);
 #else
-  uint8_t old = hid_data[9];
-  hid_data[9] = x & 0xFF;
-  if (old != hid_data[9])
-  {
-    in_changed = true;
-#ifdef HAS_DEBUG
-    Serial.println(String("whStick X: new input! ") + old + " -> " + hid_data[9]);
-#endif
-  }
 #endif
 }
 
@@ -878,15 +722,6 @@ void whHat(int8_t val, bool is_csl)
 #ifdef IS_USB
   Joystick.hat(val);
 #else
-  uint8_t old = hid_data[11];
-  hid_data[11] = val & 0xFF;
-  if (old != hid_data[11])
-  {
-    in_changed = true;
-#ifdef HAS_DEBUG
-    Serial.println(String("whHat: new input! ") + old + " -> " + hid_data[11]);
-#endif
-  }
 #endif
 }
 
@@ -895,16 +730,6 @@ void whSetId(unsigned int val)
   csw_out.id = val & 0xFF;
 #ifdef IS_USB
   Joystick.setWheel(val);
-#else
-  uint8_t old = hid_data[32];
-  hid_data[32] = csw_out.id;
-  if (old != hid_data[32])
-  {
-    in_changed = true;
-#ifdef HAS_DEBUG
-    Serial.println(String("whSetId: new input! ") + old + " -> " + hid_data[32]);
-#endif
-  }
 #endif
 }
 
@@ -921,28 +746,6 @@ void whClear()
   clutch_max = 0xFF;
   show_fwvers = true;
   disp_timout = 0;
-}
-
-int iwrap_out(int len, unsigned char *data)
-{
-  // iWRAP output to module goes through software serial
-  int nbytes = WT12.availableForWrite();
-
-  if (digitalRead(CTS) == LOW && nbytes >= len)
-  {
-    nbytes = WT12.write(data, len);
-    //Serial.println(String("sent : ") + nbytes );
-  }
-  else
-  {
-#ifdef HAS_DEBUG
-    Serial.println(String("[!] Throttling (") + max_delay + ")");
-#endif
-    max_delay++;
-    //delay(1000);
-  }
-  // got_hid = true;
-  return nbytes;
 }
 
 void hid_output(uint8_t link_id, uint16_t data_length, const uint8_t *data)
@@ -1033,7 +836,7 @@ void hid_output(uint8_t link_id, uint16_t data_length, const uint8_t *data)
     Serial.println();
 #endif
   }
-  timing_bt = millis();
+  millis();
 }
 
 void init_wheel()
