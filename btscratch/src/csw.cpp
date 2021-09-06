@@ -23,17 +23,10 @@
 #include "Arduino.h"
 
 #include "fanatec.h"
-// #include "iWRAP.h"
 #include "Debouncer.h"
 #include "Joystick.h"
 
-/* WT12 (Bluetooth specifics) */
-#define WT12 Serial1
-#define CTS 18
-
 #define MAX_SPEED 5000
-
-// uint8_t iwrap_mode = IWRAP_MODE_MUX;
 
 uint8_t hid_data[35];
 uint32_t max_delay = 150000; // overhead if below 120ms
