@@ -2,6 +2,7 @@
 
 void Joystick_T::button(uint8_t button, bool val)
 {
+    _joystickReportBuilder.setButton(button, val);
 }
 
 void Joystick_T::useManualSend(bool useManualSend)
@@ -35,6 +36,7 @@ void Joystick_T::clutch2(unsigned int val)
 
 void Joystick_T::send_now()
 {
+
 }
 
 void Joystick_T::hat(int val)

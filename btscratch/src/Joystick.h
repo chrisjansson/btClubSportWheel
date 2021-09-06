@@ -2,7 +2,7 @@
 #define _JOYSTICK_H_
 
 #include "Arduino.h"
-
+#include "joystick_report_builder.h"
 
 class Joystick_T
 {
@@ -25,7 +25,6 @@ class Joystick_T
 
     void hat(int val);
 
-    
     void setWheel(unsigned int val);
 
 
@@ -38,6 +37,7 @@ class Joystick_T
     // uint8_t value;
 
   private:
+    JoystickReportBuilder _joystickReportBuilder;
     // inline void setValue(uint8_t value) {this->value = value;}
 };
 
