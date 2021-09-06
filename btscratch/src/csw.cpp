@@ -116,25 +116,6 @@ void setup()
 
 /* WT12 */
 #ifndef IS_USB
-  pinMode(CTS, INPUT);
-  WT12.begin(115200, SERIAL_8N1);
-  WT12.attachRts(19);
-
-  // callback
-  iwrap_output = iwrap_out;
-  iwrap_evt_hid_output = hid_output;
-  iwrap_evt_ring = my_iwrap_evt_ring;
-  iwrap_evt_hid_suspend = my_iwrap_evt_hid_suspend;
-  iwrap_rsp_list_result = my_iwrap_rsp_list_result;
-  iwrap_evt_no_carrier = my_iwrap_evt_no_carrier;
-
-  // prebuild HID packet
-  hid_data[0] = 0x9f;
-  hid_data[1] = 0x21;
-  hid_data[2] = 0xa1;
-
-  in_changed = false;
-
 #else
   Joystick.useManualSend(true);
 #endif // IS_USB
@@ -165,8 +146,6 @@ void setup()
 #endif
 
 #ifndef IS_USB
-  bt_connected = false;
-  iwrap_send_command("LIST", iwrap_mode);
 #else
   bt_connected = true;
 #endif
@@ -1134,45 +1113,7 @@ void init_wheel()
 }
 
 #ifdef HAS_DEBUG
-int my_iwrap_debug(const char *data)
-{
-  return Serial.print(data);
-}
 #endif
-
-typedef int iwrap_address_t;
-
-void my_iwrap_evt_ring(uint8_t link_id, const iwrap_address_t *address, uint16_t channel, const char *profile)
-{
-#ifdef HAS_DEBUG
-  Serial.println(String("Connection from ") + link_id);
-#endif
-  bt_connected = true;
-}
-
-void my_iwrap_evt_hid_suspend(uint8_t link_id)
-{
-#ifdef HAS_DEBUG
-  Serial.println(String("Disconnection from ") + link_id);
-#endif
-  bt_connected = false;
-}
-
-void my_iwrap_evt_no_carrier(uint8_t link_id, uint16_t error_code, const char *message)
-{
-#ifdef HAS_DEBUG
-  Serial.println(String("Disconnection from ") + link_id);
-#endif
-  bt_connected = false;
-}
-
-void my_iwrap_rsp_list_result(uint8_t link_id, const char *mode, uint16_t blocksize, uint32_t elapsed_time, uint16_t local_msc, uint16_t remote_msc, const iwrap_address_t *bd_addr, uint16_t channel, uint8_t direction, uint8_t powermode, uint8_t role, uint8_t crypt, uint16_t buffer, uint8_t eretx)
-{
-#ifdef HAS_DEBUG
-  Serial.println(String("Already connected to ") + link_id);
-#endif
-  bt_connected = true;
-}
 
 void idle()
 {
