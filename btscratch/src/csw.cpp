@@ -632,39 +632,27 @@ void loop() {
 
 void whButton(uint8_t button, bool val) {
     val = btDebncer[button].get(val);
-#ifdef IS_USB
     Joystick.button(button, val);
-#else
-#endif
 }
 
 void whStick(unsigned int x, unsigned int y) {
     x = 255 - (x + 127);
     y = y + 127;
-#ifdef IS_USB
     Joystick.X(x);
     Joystick.Y(y);
-#else
-#endif
 }
 
 void whDoubleAxis(unsigned int x, unsigned int y) {
-#ifdef IS_USB
     Joystick.clutch1(x);
     Joystick.clutch2(y);
-#else
-#endif
 }
 
 void whDoubleClutch(unsigned int x, unsigned int y) {
     if (y > x)
         x = y;
 
-#ifdef IS_USB
     Joystick.clutch1(x);
     Joystick.clutch2(0);
-#else
-#endif
 }
 
 void whHat(int8_t val, bool is_csl) {
@@ -704,17 +692,12 @@ void whHat(int8_t val, bool is_csl) {
                 val = 0xFF;
         }
     }
-#ifdef IS_USB
     Joystick.hat(val);
-#else
-#endif
 }
 
 void whSetId(unsigned int val) {
     csw_out.id = val & 0xFF;
-#ifdef IS_USB
     Joystick.setWheel(val);
-#endif
 }
 
 void whClear() {
