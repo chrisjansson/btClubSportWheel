@@ -91,15 +91,6 @@ uint8_t clutch_max = 0xFF;
 void setup() {
     fsetup();
 
-    /*
-      8 Extra Buttons
-      can be connected
-      from pin 2 to pin 9
-    */
-    for (int pin = 2; pin <= 9; ++pin) {
-        pinMode(pin, INPUT_PULLUP);
-    }
-
     // debounce timer for hat switch
     hatDebncer.interval(50);
     // debounce timer for rotary encoder
