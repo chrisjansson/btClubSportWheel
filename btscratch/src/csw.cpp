@@ -838,8 +838,8 @@ void hid_output(uint8_t link_id, uint16_t data_length, const uint8_t *data)
 
 void init_wheel()
 {
-  if (show_fwvers)
-  {
+    if (!show_fwvers)
+        return;
 
     if (disp_timout == 0)
     {
@@ -903,13 +903,6 @@ void init_wheel()
         csw_out.raw[4] = 0x0A;
       }
     }
-  }
-  else
-  {
-    // xbox light
-    //    mcl_out.raw[1] = 0x00;
-    //    mcl_out.raw[9] = 0x0F;
-  }
 }
 
 #ifdef HAS_DEBUG
