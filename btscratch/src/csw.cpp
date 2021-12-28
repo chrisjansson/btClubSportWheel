@@ -559,12 +559,6 @@ void loop() {
             delay(10);
     }
 
-    // Need more inputs?
-    // 8 Extra Buttons (pins 2 to 9 -> 41 to 48)
-    for (int i = 0; i < 8; ++i) {
-        whButton(77 + i, !digitalRead(2 + i));
-    }
-
 // Send HID report (all inputs)
 #ifdef IS_USB
     uint32_t now = micros();
