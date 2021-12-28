@@ -45,7 +45,7 @@ void loop();
 
 void idle();
 
-void init_wheel();
+void show_firmware_version();
 
 /* Wheel inputs */
 void whClear();
@@ -143,7 +143,7 @@ void loop() {
 
             //csw_out.raw[9] = 0x0F; // xbox light
             transferCswData(&csw_out, &csw_in, sizeof(csw_out.raw));
-            init_wheel();
+            show_firmware_version();
 
 #ifdef HAS_DEBUG
             Serial.print("CSW_IN:");
@@ -374,7 +374,7 @@ void loop() {
             // csl stuff
             transferCslData(&csl_out, &csl_in, sizeof(csl_out.raw), 0x00);
             whSetId(CSLP1XBOX);
-            init_wheel();
+            show_firmware_version();
 
             // Joystick / 1st disp
             csl_out.disp = csw7segToCsl(csw_out.disp[0]);
@@ -415,7 +415,7 @@ void loop() {
             // McLaren GT3
 
             transferMclData(&mcl_out, &mcl_in, sizeof(mcl_out.raw));
-            init_wheel();
+            show_firmware_version();
 
             // Wheel ID
             whSetId(mcl_in.id);
@@ -797,7 +797,7 @@ int csw_ascii_to_7seg(char c) {
     return seven_seg_digits_decode_gfedcba[c - '0'];
 }
 
-void init_wheel() {
+void show_firmware_version() {
     if (!show_fwvers)
         return;
 
