@@ -132,8 +132,9 @@ void loop() {
     // Fetching HID packet
     uint16_t hid_size;
     hid_size = Joystick.recv(&hid_pck, 0);
-    if (hid_size > 0)
+    if (hid_size > 0){
         hid_output(1, hid_size, hid_pck);
+    }
 #endif
 
     switch (detectWheelType()) {
