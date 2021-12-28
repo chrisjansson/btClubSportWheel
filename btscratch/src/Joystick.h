@@ -7,8 +7,6 @@
 class Joystick_T
 {
   public:
-    void useManualSend(bool useManualSend);
-
     int recv(void *buffer, uint16_t timeout);
 
     void send_now();

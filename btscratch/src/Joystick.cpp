@@ -9,10 +9,6 @@ void Joystick_T::button(uint8_t button, bool val)
     _joystickReportBuilder.setButton(button, val);
 }
 
-void Joystick_T::useManualSend(bool useManualSend)
-{
-}
-
 void Joystick_T::setWheel(unsigned int val)
 {
 }

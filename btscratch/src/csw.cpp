@@ -108,10 +108,6 @@ void setup() {
     btDebncer[17].interval(30);
     btDebncer[18].interval(30);
 
-#ifdef IS_USB
-    //TODO: remove, always true
-    Joystick.useManualSend(true);
-#endif // IS_USB
     whClear();
 
     // prebuild output packet
