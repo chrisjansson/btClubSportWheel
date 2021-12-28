@@ -65,7 +65,7 @@ bool bt_connected;
 bool got_hid;
 bool show_fwvers;
 uint32_t timing;
-uint32_t disp_timout;
+uint32_t fwShownForDuration;
 uint32_t usb_time;
 
 uint8_t hid_pck[7];
@@ -741,7 +741,7 @@ void whClear()
   }
   clutch_max = 0xFF;
   show_fwvers = true;
-  disp_timout = 0;
+    fwShownForDuration = 0;
 }
 
 void hid_output(uint8_t link_id, uint16_t data_length, const uint8_t *data)
@@ -835,14 +835,55 @@ void hid_output(uint8_t link_id, uint16_t data_length, const uint8_t *data)
   millis();
 }
 
+const unsigned char seven_seg_digits_decode_abcdefg[75]= {
+/*  0     1     2     3     4     5     6     7     8     9     :     ;     */
+        0x7E, 0x30, 0x6D, 0x79, 0x33, 0x5B, 0x5F, 0x70, 0x7F, 0x7B, 0x00, 0x00,
+/*  <     =     >     ?     @     A     B     C     D     E     F     G     */
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x77, 0x1F, 0x4E, 0x3D, 0x4F, 0x47, 0x5E,
+/*  H     I     J     K     L     M     N     O     P     Q     R     S     */
+        0x37, 0x06, 0x3C, 0x57, 0x0E, 0x55, 0x15, 0x1D, 0x67, 0x73, 0x05, 0x5B,
+/*  T     U     V     W     X     Y     Z     [     \     ]     ^     _     */
+        0x0F, 0x3E, 0x1C, 0x5C, 0x13, 0x3B, 0x6D, 0x00, 0x00, 0x00, 0x00, 0x00,
+/*  `     a     b     c     d     e     f     g     h     i     j     k     */
+        0x00, 0x77, 0x1F, 0x4E, 0x3D, 0x4F, 0x47, 0x5E, 0x37, 0x06, 0x3C, 0x57,
+/*  l     m     n     o     p     q     r     s     t     u     v     w     */
+        0x0E, 0x55, 0x15, 0x1D, 0x67, 0x73, 0x05, 0x5B, 0x0F, 0x3E, 0x1C, 0x5C,
+/*  x     y     z     */
+        0x13, 0x3B, 0x6D
+};
+
+const unsigned char seven_seg_digits_decode_gfedcba[75]= {
+/*  0     1     2     3     4     5     6     7     8     9     :     ;     */
+        0x3F, 0x06, 0x5B, 0x4F, 0x66, 0x6D, 0x7D, 0x07, 0x7F, 0x6F, 0x00, 0x00,
+/*  <     =     >     ?     @     A     B     C     D     E     F     G     */
+        0x00, 0x00, 0x00, 0x00, 0x00, 0x77, 0x7C, 0x39, 0x5E, 0x79, 0x71, 0x3D,
+/*  H     I     J     K     L     M     N     O     P     Q     R     S     */
+        0x76, 0x30, 0x1E, 0x75, 0x38, 0x55, 0x54, 0x5C, 0x73, 0x67, 0x50, 0x6D,
+/*  T     U     V     W     X     Y     Z     [     \     ]     ^     _     */
+        0x78, 0x3E, 0x1C, 0x1D, 0x64, 0x6E, 0x5B, 0x00, 0x00, 0x00, 0x00, 0x00,
+/*  `     a     b     c     d     e     f     g     h     i     j     k     */
+        0x00, 0x77, 0x7C, 0x39, 0x5E, 0x79, 0x71, 0x3D, 0x76, 0x30, 0x1E, 0x75,
+/*  l     m     n     o     p     q     r     s     t     u     v     w     */
+        0x38, 0x55, 0x54, 0x5C, 0x73, 0x67, 0x50, 0x6D, 0x78, 0x3E, 0x1C, 0x1D,
+/*  x     y     z     */
+        0x64, 0x6E, 0x5B
+};
+
+int csw_ascii_to_7seg(char c) {
+    if (c > (unsigned char)'z')
+        return 0x00;
+    return seven_seg_digits_decode_gfedcba[c - '0'];
+}
 
 void init_wheel()
 {
     if (!show_fwvers)
         return;
 
-    if (disp_timout == 0)
+    bool isFirstLoop = fwShownForDuration == 0;
+    if (isFirstLoop)
     {
+        Serial.println("Init wheel");
       // start showing fw vers
       if (detectWheelType() == MCL_WHEEL)
       {
@@ -878,30 +919,44 @@ void init_wheel()
         }
         else
         {
-          // TODO: AsciiTo7seg conversion
-          csw_out.disp[0] = 0x00;
-          csw_out.disp[1] = 0x00;
-          csw_out.disp[2] = 0x00;
+            String fw_vers = String(csw_in.fwvers);
+
+            csw_out.disp[0] = 0;
+            csw_out.disp[1] = 0;
+            csw_out.disp[2] = 0;
+
+            csw_out.disp[0] = csw_ascii_to_7seg(fw_vers.charAt(0));
+            if (fw_vers.length() > 1)
+                csw_out.disp[1] = csw_ascii_to_7seg(fw_vers.charAt(1));
+            if (fw_vers.length() > 2)
+                csw_out.disp[2] = csw_ascii_to_7seg(fw_vers.charAt(2));
         }
       }
-      disp_timout = millis();
+        fwShownForDuration = millis();
     }
-    else if (millis() - disp_timout >= 4000)
+    else if (millis() - fwShownForDuration >= 4000)
     {
-      // stop
-      show_fwvers = false;
-      mcl_out.raw[1] = 0x11;
-      mcl_out.raw[2] = 0x0A;
-      mcl_out.raw[3] = 0x0A;
-      mcl_out.raw[4] = 0x0A;
-      mcl_out.raw[9] = 0x00;
-      if (csw_in.id == CSLMCLGT3)
-      {
-        csw_out.raw[1] = 0x11;
-        csw_out.raw[2] = 0x0A;
-        csw_out.raw[3] = 0x0A;
-        csw_out.raw[4] = 0x0A;
-      }
+        show_fwvers = false;
+        if(detectWheelType() == CSW_WHEEL){
+            csw_out.disp[0] = 0;
+            csw_out.disp[1] = 0;
+            csw_out.disp[2] = 0;
+        }
+        else
+        {
+            mcl_out.raw[1] = 0x11;
+            mcl_out.raw[2] = 0x0A;
+            mcl_out.raw[3] = 0x0A;
+            mcl_out.raw[4] = 0x0A;
+            mcl_out.raw[9] = 0x00;
+            if (csw_in.id == CSLMCLGT3)
+            {
+                csw_out.raw[1] = 0x11;
+                csw_out.raw[2] = 0x0A;
+                csw_out.raw[3] = 0x0A;
+                csw_out.raw[4] = 0x0A;
+            }
+        }
     }
 }
 
