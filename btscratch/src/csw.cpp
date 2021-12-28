@@ -101,6 +101,7 @@ void setup()
   btDebncer[18].interval(30);
 
 #ifdef IS_USB
+  //TODO: remove, always true
     Joystick.useManualSend(true);
 #endif // IS_USB
   whClear();
@@ -141,7 +142,7 @@ void setup()
 
 void loop()
 {
-
+    //TODO: always true
   if (bt_connected)
   {
 #ifdef IS_USB
@@ -833,6 +834,7 @@ void hid_output(uint8_t link_id, uint16_t data_length, const uint8_t *data)
   }
   millis();
 }
+
 
 void init_wheel()
 {
