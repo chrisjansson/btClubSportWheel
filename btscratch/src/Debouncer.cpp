@@ -23,7 +23,7 @@
 
 Debouncer::Debouncer()
     : previous_millis(0)
-    , interval_millis(50)
+    , interval_millis(75)
     , value(0)
 {}
 
