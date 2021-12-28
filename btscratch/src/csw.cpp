@@ -35,7 +35,7 @@ uint32_t max_delay = 150000; // overhead if below 120ms
 bool in_changed;
 
 /* Receive HID host to device */
-void hid_output(uint8_t link_id, uint16_t data_length, const uint8_t *data);
+void receive_hid_from_host(uint8_t link_id, uint16_t data_length, const uint8_t *data);
 
 void setup();
 
@@ -548,7 +548,7 @@ void loop() {
     uint16_t hid_size;
     hid_size = Joystick.recv(&hid_pck, 0);
     if (hid_size > 0) {
-        hid_output(1, hid_size, hid_pck);
+        receive_hid_from_host(1, hid_size, hid_pck);
     }
 #endif
 
@@ -566,12 +566,6 @@ void loop() {
             // no wheel  ?
             whClear();
             delay(10);
-    }
-
-    // Need more inputs?
-    // 8 Extra Buttons (pins 2 to 9 -> 41 to 48)
-    for (int i = 0; i < 8; ++i) {
-        whButton(77 + i, !digitalRead(2 + i));
     }
 
 // Send HID report (all inputs)
@@ -712,41 +706,39 @@ void whClear() {
     fwShownForDuration = 0;
 }
 
-void hid_output(uint8_t link_id, uint16_t data_length, const uint8_t *data) {
+void receive_hid_from_host(uint8_t link_id, uint16_t data_length, const uint8_t *data) {
     if (data[2] == 0x01 && data[3] == 0x02) {
         // 7 seg
-        if (!show_fwvers) {
-            if (detectWheelType() == MCL_WHEEL) {
-                mcl_out.raw[1] = 0x11;
-                mcl_out.raw[2] = csw7segToAscii(data[4] & 0xff);
-                mcl_out.raw[3] = csw7segToAscii(data[5] & 0xff);
-                mcl_out.raw[4] = csw7segToAscii(data[6] & 0xff);
+        if (detectWheelType() == MCL_WHEEL) {
+            mcl_out.raw[1] = 0x11;
+            mcl_out.raw[2] = csw7segToAscii(data[4] & 0xff);
+            mcl_out.raw[3] = csw7segToAscii(data[5] & 0xff);
+            mcl_out.raw[4] = csw7segToAscii(data[6] & 0xff);
 
 #ifdef HAS_DEBUG
-                Serial.print(String("HID display: "));
-                Serial.print(data[4], HEX);
-                Serial.print(":");
-                Serial.print(data[5], HEX);
-                Serial.print(":");
-                Serial.print(data[6], HEX);
-                Serial.println();
+            Serial.print(String("HID display: "));
+            Serial.print(data[4], HEX);
+            Serial.print(":");
+            Serial.print(data[5], HEX);
+            Serial.print(":");
+            Serial.print(data[6], HEX);
+            Serial.println();
 #endif
+        } else {
+            if (csw_in.id == CSLMCLGT3) {
+                csw_out.raw[1] = 0x11;
+                csw_out.raw[2] = csw7segToAscii(data[4] & 0xff);
+                csw_out.raw[3] = csw7segToAscii(data[5] & 0xff);
+                csw_out.raw[4] = csw7segToAscii(data[6] & 0xff);
             } else {
-                if (csw_in.id == CSLMCLGT3) {
-                    csw_out.raw[1] = 0x11;
-                    csw_out.raw[2] = csw7segToAscii(data[4] & 0xff);
-                    csw_out.raw[3] = csw7segToAscii(data[5] & 0xff);
-                    csw_out.raw[4] = csw7segToAscii(data[6] & 0xff);
-                } else {
-                    csw_out.disp[0] = (data[4] & 0xff);
-                    csw_out.disp[1] = (data[5] & 0xff);
-                    csw_out.disp[2] = (data[6] & 0xff);
-                }
-#ifdef HAS_DEBUG
-                Serial.println(
-                        String("HID display: ") + csw_out.disp[0] + ":" + csw_out.disp[1] + ":" + csw_out.disp[2]);
-#endif
+                csw_out.disp[0] = (data[4] & 0xff);
+                csw_out.disp[1] = (data[5] & 0xff);
+                csw_out.disp[2] = (data[6] & 0xff);
             }
+#ifdef HAS_DEBUG
+            Serial.println(
+                    String("HID display: ") + csw_out.disp[0] + ":" + csw_out.disp[1] + ":" + csw_out.disp[2]);
+#endif
         }
     } else if (data[2] == 0x01 && data[3] == 0x03) {
         // rumbles
