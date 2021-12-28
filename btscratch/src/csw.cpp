@@ -71,7 +71,6 @@ csl_out_t csl_out;
 mcl_in_t mcl_in;
 mcl_out_t mcl_out;
 
-bool got_hid;
 bool show_fwvers;
 uint32_t timing;
 uint32_t fwShownForDuration;
@@ -116,7 +115,6 @@ void setup() {
     csw_out.header = 0xa5;
     mcl_out.header = 0xa5;
     csw_out.id = 0x00;
-    got_hid = false;
     setup2();
 
 // debug
@@ -879,9 +877,6 @@ void init_wheel() {
         }
     }
 }
-
-#ifdef HAS_DEBUG
-#endif
 
 void idle() {
 #ifndef IS_USB
