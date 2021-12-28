@@ -1,4 +1,8 @@
+#include <services/BLEHidGeneric.h>
 #include "Joystick.h"
+
+extern BLEHidGeneric hidService;
+
 
 void Joystick_T::button(uint8_t button, bool val)
 {
@@ -36,6 +40,9 @@ void Joystick_T::clutch2(unsigned int val)
 
 void Joystick_T::send_now()
 {
+    hidService.inputReport(_joystickReportBuilder.getReportId(), _joystickReportBuilder.getReport(), _joystickReportBuilder.getReportLength());
+//    delay(50);
+//    _joystickReportBuilder.clear();
 
 }
 

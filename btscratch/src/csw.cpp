@@ -38,6 +38,7 @@ bool in_changed;
 void hid_output(uint8_t link_id, uint16_t data_length, const uint8_t *data);
 
 void setup();
+void setup2();
 void loop();
 void idle();
 void init_wheel();
@@ -112,6 +113,7 @@ void setup()
   mcl_out.header = 0xa5;
   csw_out.id = 0x00;
   got_hid = false;
+  setup2();
 
 // debug
 #ifdef HAS_DEBUG

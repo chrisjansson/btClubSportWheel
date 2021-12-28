@@ -86,7 +86,7 @@ void setup_battery()
 //
 }
 
-void setup()
+void setup2()
 {
     Serial.begin(115200);
     while ( !Serial ) delay(10);   // for nrf52840 with native usb
@@ -145,7 +145,7 @@ uint8_t buttons[32];
 
 uint8_t button = 0;
 
-void loop()
+void loop2()
 {
 //    buttons[0] += 1;
 //    buttons[1] += 1;
