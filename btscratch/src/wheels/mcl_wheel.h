@@ -11,7 +11,6 @@
 class mcl_wheel : public wheel {
     void transferData() override {
         // McLaren GT3
-
         transferMclData(&mcl_out, &mcl_in, sizeof(mcl_out.raw));
     }
 
@@ -152,8 +151,16 @@ class mcl_wheel : public wheel {
 #endif
     }
 
-    void clearBase() override{
+    void clearBase() override {
         clutch_max = 0xFF;
+    }
+
+    void clear_display() override {
+        mcl_out.raw[1] = 0x11;
+        mcl_out.raw[2] = 0x0A;
+        mcl_out.raw[3] = 0x0A;
+        mcl_out.raw[4] = 0x0A;
+        mcl_out.raw[9] = 0x00;
     }
 
     mcl_in_t mcl_in;

@@ -250,6 +250,19 @@ class csw_wheel : public wheel {
         clutch_max = 0xFF;
     }
 
+    void clear_display() override {
+        if (_csw_in.id == CSLMCLGT3) {
+            _csw_out.raw[1] = 0x11;
+            _csw_out.raw[2] = 0x0A;
+            _csw_out.raw[3] = 0x0A;
+            _csw_out.raw[4] = 0x0A;
+        } else {
+            _csw_out.disp[0] = 0;
+            _csw_out.disp[1] = 0;
+            _csw_out.disp[2] = 0;
+        }
+    }
+
     uint8_t clutch_max = 0xFF;
     csw_in_t _csw_in;
 };

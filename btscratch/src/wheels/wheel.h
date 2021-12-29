@@ -189,6 +189,10 @@ public:
     bool show_fwvers = true;
     uint32_t fwShownForDuration;
 
+    virtual void clear_display() {
+
+    }
+
     void show_firmware_version() {
         if (!show_fwvers)
             return;
@@ -241,23 +245,7 @@ public:
             fwShownForDuration = millis();
         } else if (millis() - fwShownForDuration >= 4000) {
             show_fwvers = false;
-            if (detectWheelType() == CSW_WHEEL) {
-                _csw_out.disp[0] = 0;
-                _csw_out.disp[1] = 0;
-                _csw_out.disp[2] = 0;
-            } else {
-//                mcl_out.raw[1] = 0x11;
-//                mcl_out.raw[2] = 0x0A;
-//                mcl_out.raw[3] = 0x0A;
-//                mcl_out.raw[4] = 0x0A;
-//                mcl_out.raw[9] = 0x00;
-//                if (csw_in.id == CSLMCLGT3) {
-//                    _csw_out.raw[1] = 0x11;
-//                    _csw_out.raw[2] = 0x0A;
-//                    _csw_out.raw[3] = 0x0A;
-//                    _csw_out.raw[4] = 0x0A;
-//                }
-            }
+            clear_display();
         }
     }
 
