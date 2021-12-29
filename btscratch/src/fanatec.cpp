@@ -79,7 +79,7 @@ uint8_t crc8(const uint8_t *buf, uint8_t length) {
     return crc;
 }
 
-// Try to detect which wheel is connected by reading the header bit
+// Try to detect which WheelBase is connected by reading the header bit
 // transfer*Data also reset this state if the header bit is not the one expected
 wheel_type detectWheelType() {
     if (rim_inserted == NO_WHEEL) {

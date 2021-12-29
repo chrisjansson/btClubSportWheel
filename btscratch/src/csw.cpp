@@ -28,7 +28,7 @@
 #include "fanatec.h"
 #include "Debouncer.h"
 #include "Joystick.h"
-#include "wheels/wheel.h"
+#include "wheels/WheelBase.h"
 
 #define MAX_SPEED 50000
 
@@ -52,9 +52,9 @@ uint8_t hid_pck[7];
 csw_wheel csw_wheel;
 mcl_wheel mcl_wheel;
 csl_wheel csl_wheel;
-wheel initial_wheel;
+WheelBase initial_wheel;
 
-wheel* wheel = &initial_wheel;
+WheelBase* wheel = &initial_wheel;
 
 uint8_t main_link_id = 1;
 
@@ -90,31 +90,31 @@ void loop() {
     uint16_t hid_size;
     hid_size = Joystick.recv(&hid_pck, 0);
     if (hid_size > 0) {
-        wheel->receive_hid_from_host(1, hid_size, hid_pck);
+        WheelBase->receive_hid_from_host(1, hid_size, hid_pck);
     }
 #endif
 
     switch (detectWheelType()) {
         case CSW_WHEEL:
-            wheel = &csw_wheel;
-            wheel->transferData();
-            wheel->show_firmware_version();
-            wheel->process();
+            WheelBase = &csw_wheel;
+            WheelBase->transferData();
+            WheelBase->show_firmware_version();
+            WheelBase->process();
             break;
         case CSL_WHEEL:
-            wheel = &csl_wheel;
-            wheel->transferData();
-            wheel->show_firmware_version();
-            wheel->process();
+            WheelBase = &csl_wheel;
+            WheelBase->transferData();
+            WheelBase->show_firmware_version();
+            WheelBase->process();
             break;
         case MCL_WHEEL:
-            wheel = &mcl_wheel;
-            wheel->transferData();
-            wheel->show_firmware_version();
-            wheel->process();
+            WheelBase = &mcl_wheel;
+            WheelBase->transferData();
+            WheelBase->show_firmware_version();
+            WheelBase->process();
             break;
         default:
-            // no wheel  ?
+            // no WheelBase  ?
             whClear();
             delay(10);
     }
@@ -173,7 +173,7 @@ void loop() {
 }
 
 void whClear() {
-    wheel->clear();
+    WheelBase->clear();
 }
 
 void idle() {

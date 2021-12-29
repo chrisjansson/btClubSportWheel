@@ -5,10 +5,10 @@
 #ifndef BTSCRATCH_CSW_WHEEL_H
 #define BTSCRATCH_CSW_WHEEL_H
 
-#include "wheel.h"
+#include "WheelBase.h"
 #include "../fanatec.h"
 
-class csw_wheel : public wheel {
+class csw_wheel : public WheelBase {
 public:
     csw_wheel() {
         _csw_out.header = 0xa5;

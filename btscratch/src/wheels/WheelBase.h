@@ -2,16 +2,16 @@
 // Created by chris on 2021-12-29.
 //
 
-#ifndef BTSCRATCH_WHEEL_H
-#define BTSCRATCH_WHEEL_H
+#ifndef BTSCRATCH_WHEELBASE_H
+#define BTSCRATCH_WHEELBASE_H
 
 #include "Joystick.h"
 #include "Debouncer.h"
 #include "fanatec.h"
 
-class wheel {
+class WheelBase {
 public:
-    wheel() {
+    WheelBase() {
         // debounce timer for rotary encoder
         _buttonDebouncers[17].interval(30);
         _buttonDebouncers[18].interval(30);
@@ -135,38 +135,38 @@ public:
 #endif
             } else {
 //                if (csw_in.id == CSLMCLGT3) {
-//                    wheel._csw_out.raw[1] = 0x11;
-//                    wheel._csw_out.raw[2] = csw7segToAscii(data[4] & 0xff);
-//                    wheel._csw_out.raw[3] = csw7segToAscii(data[5] & 0xff);
-//                    wheel._csw_out.raw[4] = csw7segToAscii(data[6] & 0xff);
+//                    WheelBase._csw_out.raw[1] = 0x11;
+//                    WheelBase._csw_out.raw[2] = csw7segToAscii(data[4] & 0xff);
+//                    WheelBase._csw_out.raw[3] = csw7segToAscii(data[5] & 0xff);
+//                    WheelBase._csw_out.raw[4] = csw7segToAscii(data[6] & 0xff);
 //                } else {
-//                    wheel._csw_out.disp[0] = (data[4] & 0xff);
-//                    wheel._csw_out.disp[1] = (data[5] & 0xff);
-//                    wheel._csw_out.disp[2] = (data[6] & 0xff);
+//                    WheelBase._csw_out.disp[0] = (data[4] & 0xff);
+//                    WheelBase._csw_out.disp[1] = (data[5] & 0xff);
+//                    WheelBase._csw_out.disp[2] = (data[6] & 0xff);
 //                }
 #ifdef HAS_DEBUG
                 Serial.println(
-                    String("HID display: ") + wheel._csw_out.disp[0] + ":" + wheel._csw_out.disp[1] + ":" + wheel._csw_out.disp[2]);
+                    String("HID display: ") + WheelBase._csw_out.disp[0] + ":" + WheelBase._csw_out.disp[1] + ":" + WheelBase._csw_out.disp[2]);
 #endif
             }
         } else if (data[2] == 0x01 && data[3] == 0x03) {
             // rumbles
-//            if (wheel._csw_out.id != UNIHUB && csw_in.id != CSLMCLGT3) {
-//                wheel._csw_out.rumble[0] = (data[4] & 0xff);
-//                wheel._csw_out.rumble[1] = (data[5] & 0xff);
+//            if (WheelBase._csw_out.id != UNIHUB && csw_in.id != CSLMCLGT3) {
+//                WheelBase._csw_out.rumble[0] = (data[4] & 0xff);
+//                WheelBase._csw_out.rumble[1] = (data[5] & 0xff);
 //            }
 #ifdef HAS_DEBUG
-            Serial.println(String("HID rumbles: ") + wheel._csw_out.rumble[0] + ":" + wheel._csw_out.rumble[1]);
+            Serial.println(String("HID rumbles: ") + WheelBase._csw_out.rumble[0] + ":" + WheelBase._csw_out.rumble[1]);
 #endif
         } else if (data[2] == 0x08) {
             // Rev Lights
-//            if (wheel._csw_out.id != UNIHUB && csw_in.id != CSLMCLGT3) {
-//                wheel._csw_out.leds = (data[3] & 0xff) << 8 | (data[4] & 0xff);
+//            if (WheelBase._csw_out.id != UNIHUB && csw_in.id != CSLMCLGT3) {
+//                WheelBase._csw_out.leds = (data[3] & 0xff) << 8 | (data[4] & 0xff);
 //                // ftx_pck[5] = (hid_pck[4] & 0xff);
 //                // ftx_pck[6] = (hid_pck[3] & 0xff);
 //            }
 #ifdef HAS_DEBUG
-            Serial.println(String("HID leds   : ") + wheel._csw_out.leds);
+            Serial.println(String("HID leds   : ") + WheelBase._csw_out.leds);
 #endif
         } else if (data[1] == 0x14) {
             // ??
@@ -216,4 +216,4 @@ private:
 };
 
 
-#endif //BTSCRATCH_WHEEL_H
+#endif //BTSCRATCH_WHEELBASE_H

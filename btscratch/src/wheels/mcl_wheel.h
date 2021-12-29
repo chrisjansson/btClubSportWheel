@@ -5,10 +5,10 @@
 #ifndef BTSCRATCH_MCL_WHEEL_H
 #define BTSCRATCH_MCL_WHEEL_H
 
-#include "wheel.h"
+#include "WheelBase.h"
 #include "../fanatec.h"
 
-class mcl_wheel : public wheel {
+class mcl_wheel : public WheelBase {
 public:
     mcl_wheel(){
         mcl_out.header = 0xa5;
