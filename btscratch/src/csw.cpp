@@ -34,8 +34,6 @@
 
 uint8_t hid_data[35];
 
-bool in_changed;
-
 void setup();
 
 void setup2();
@@ -83,7 +81,6 @@ void setup() {
 #endif
 
     timing = micros();
-    millis();
     usb_time = micros();
 }
 
@@ -124,6 +121,7 @@ void loop() {
 
 // Send HID report (all inputs)
 #ifdef IS_USB
+//TODO: Check for overflow 70min
     uint32_t now = micros();
     if (now >= usb_time) {
         uint32_t delta_t = now - usb_time;
