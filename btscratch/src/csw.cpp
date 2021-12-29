@@ -51,14 +51,6 @@ void show_firmware_version();
 /* Wheel inputs */
 void whClear();
 
-void whStick(unsigned int x, unsigned int y);
-
-void whDoubleAxis(unsigned int x, unsigned int y);
-
-void whDoubleClutch(unsigned int x, unsigned int y);
-
-void whHat(int8_t val, bool is_csl);
-
 void whSetId(unsigned int val);
 
 csw_in_t csw_in;
@@ -79,7 +71,6 @@ uint8_t hid_pck[7];
 
 wheel wheel;
 
-Debouncer hatDebncer = Debouncer();
 
 byte rotary_debounce = 0;
 int8_t rotary_value = 0;
@@ -90,9 +81,6 @@ uint8_t clutch_max = 0xFF;
 
 void setup() {
     fsetup();
-
-    // debounce timer for hat switch
-    hatDebncer.interval(50);
 
     whClear();
 
@@ -146,7 +134,7 @@ void csw_loop() {
     whSetId(csw_in.id);
 
     // Left stick
-    whStick(csw_in.axisX, csw_in.axisY);
+    wheel.whStick(csw_in.axisX, csw_in.axisY);
 
     // All buttons
     wheel.whButton(1, csw_in.buttons[0] & 0x80);  // first top right
@@ -222,10 +210,10 @@ void csw_loop() {
         // wheel.whButton(40, csw_in.garbage[0] & 0x02);
         wheel.whButton(41, csw_in.garbage[0] & 0x04);
         // wheel.whButton(42, csw_in.garbage[0] & 0x08);
-        whDoubleAxis(csw_in.garbage[1], csw_in.garbage[2]);
+        wheel.whDoubleAxis(csw_in.garbage[1], csw_in.garbage[2]);
     }
 
-    whHat(csw_in.buttons[0] & 0x0f, false);
+    wheel.whHat(csw_in.buttons[0] & 0x0f, false);
 
     // Serial.println(String("button: ") + hid_data[3]);
 
@@ -328,14 +316,14 @@ void csw_loop() {
         switch (csw_in.garbage[2] & 0x0F) {
             case 0x01:
                 // bite point
-                whDoubleClutch(~csw_in.axisX, ~csw_in.axisY);
+                wheel.whDoubleClutch(~csw_in.axisX, ~csw_in.axisY);
                 break;
             case 0x02:
                 // bite point advanced
-                whDoubleClutch(map(~csw_in.axisX & 0xFF, 0, 0xFF, 0, clutch_max), ~csw_in.axisY & 0xff);
+                wheel.whDoubleClutch(map(~csw_in.axisX & 0xFF, 0, 0xFF, 0, clutch_max), ~csw_in.axisY & 0xff);
                 break;
             default:
-                whDoubleAxis(~csw_in.axisX, ~csw_in.axisY);
+                wheel.whDoubleAxis(~csw_in.axisX, ~csw_in.axisY);
         }
 
         //wheel.whButton(11, mcl_in.buttons[2] & 0x20); // display button
@@ -353,7 +341,7 @@ void csw_loop() {
         wheel.whButton(31, ((csw_in.garbage[3] & 0x0f) == 0x0B) && !((csw_in.buttons[2] & 0x20) == 0x20));
         wheel.whButton(32, ((csw_in.garbage[3] & 0x0f) == 0x0C) && !((csw_in.buttons[2] & 0x20) == 0x20));
 
-        whStick(0, 0);
+        wheel.whStick(0, 0);
     }
 }
 
@@ -366,7 +354,7 @@ void csl_loop() {
     // Joystick / 1st disp
     csl_out.disp = csw7segToCsl(csw_out.disp[0]);
     transferCslData(&csl_out, &csl_in, sizeof(csl_out.raw), 0x41);
-    whHat(csl_in.buttons & 0x1E, true);
+    wheel.whHat(csl_in.buttons & 0x1E, true);
     wheel.whButton(13, csl_in.buttons & 0x01); // hat button
 
     // Right Line / 2st disp
@@ -395,7 +383,7 @@ void csl_loop() {
     wheel.whButton(3, csl_in.buttons & 0x08);  // Y
     wheel.whButton(4, csl_in.buttons & 0x10);  // X
 
-    whStick(0, 0);
+    wheel.whStick(0, 0);
 }
 
 void mcl_loop() {
@@ -407,7 +395,7 @@ void mcl_loop() {
     // Wheel ID
     whSetId(mcl_in.id);
 
-    whHat(mcl_in.buttons[0] & 0x0f, false);
+    wheel.whHat(mcl_in.buttons[0] & 0x0f, false);
 
     // All buttons
     wheel.whButton(1, mcl_in.buttons[0] & 0x80); // Y
@@ -501,14 +489,14 @@ void mcl_loop() {
     switch (mcl_in.garbage[2] & 0x0F) {
         case 0x01:
             // bite point
-            whDoubleClutch(~mcl_in.axisX, ~mcl_in.axisY);
+            wheel.whDoubleClutch(~mcl_in.axisX, ~mcl_in.axisY);
             break;
         case 0x02:
             // bite point advanced
-            whDoubleClutch(map(~mcl_in.axisX & 0xFF, 0, 0xFF, 0, clutch_max), ~mcl_in.axisY & 0xff);
+            wheel.whDoubleClutch(map(~mcl_in.axisX & 0xFF, 0, 0xFF, 0, clutch_max), ~mcl_in.axisY & 0xff);
             break;
         default:
-            whDoubleAxis(~mcl_in.axisX, ~mcl_in.axisY);
+            wheel.whDoubleAxis(~mcl_in.axisX, ~mcl_in.axisY);
     }
 
     //wheel.whButton(11, mcl_in.buttons[2] & 0x20); // display button
@@ -526,7 +514,7 @@ void mcl_loop() {
     wheel.whButton(31, ((mcl_in.garbage[3] & 0x0f) == 0x0B) && !((mcl_in.buttons[2] & 0x20) == 0x20));
     wheel.whButton(32, ((mcl_in.garbage[3] & 0x0f) == 0x0C) && !((mcl_in.buttons[2] & 0x20) == 0x20));
 
-    whStick(0, 0);
+    wheel.whStick(0, 0);
 
 #ifdef HAS_DEBUG
     Serial.print("MCL_IN:");
@@ -620,66 +608,6 @@ void loop() {
     idle();
 }
 
-void whStick(unsigned int x, unsigned int y) {
-    x = 255 - (x + 127);
-    y = y + 127;
-    Joystick.X(x);
-    Joystick.Y(y);
-}
-
-void whDoubleAxis(unsigned int x, unsigned int y) {
-    Joystick.clutch1(x);
-    Joystick.clutch2(y);
-}
-
-void whDoubleClutch(unsigned int x, unsigned int y) {
-    if (y > x)
-        x = y;
-
-    Joystick.clutch1(x);
-    Joystick.clutch2(0);
-}
-
-void whHat(int8_t val, bool is_csl) {
-    val = hatDebncer.get(val);
-    if (is_csl) { // CSL
-        switch (val) {
-            case 4:
-                val = 0;
-                break;
-            case 2:
-                val = 2;
-                break;
-            case 8:
-                val = 4;
-                break;
-            case 16:
-                val = 6;
-                break;
-            default:
-                val = 0xFF;
-        }
-    } else { // CSW
-        switch (val) {
-            case 1:
-                val = 0;
-                break;
-            case 2:
-                val = 6;
-                break;
-            case 4:
-                val = 2;
-                break;
-            case 8:
-                val = 4;
-                break;
-            default:
-                val = 0xFF;
-        }
-    }
-    Joystick.hat(val);
-}
-
 void whSetId(unsigned int val) {
     csw_out.id = val & 0xFF;
     Joystick.setWheel(val);
@@ -687,9 +615,9 @@ void whSetId(unsigned int val) {
 
 void whClear() {
     whSetId(NO_RIM);
-    whStick(0, 0);
-    whHat(0, false);
-    whDoubleAxis(0x00, 0x00);
+    wheel.whStick(0, 0);
+    wheel.whHat(0, false);
+    wheel.whDoubleAxis(0x00, 0x00);
     for (int i = 1; i <= 37; ++i) {
         wheel.whButton(i, 0);
     }

@@ -12,6 +12,9 @@ public:
         // debounce timer for rotary encoder
         _buttonDebouncers[17].interval(30);
         _buttonDebouncers[18].interval(30);
+
+        // debounce timer for hat switch
+        _hatDebouncer.interval(50);
     }
 
     void whButton(uint8_t button, bool val) {
@@ -19,7 +22,68 @@ public:
         Joystick.button(button, val);
     }
 
+    void whStick(unsigned int x, unsigned int y) {
+        x = 255 - (x + 127);
+        y = y + 127;
+        Joystick.X(x);
+        Joystick.Y(y);
+    }
+
+    void whDoubleAxis(unsigned int x, unsigned int y) {
+        Joystick.clutch1(x);
+        Joystick.clutch2(y);
+    }
+
+    void whDoubleClutch(unsigned int x, unsigned int y) {
+        if (y > x)
+            x = y;
+
+        Joystick.clutch1(x);
+        Joystick.clutch2(0);
+    }
+
+    void whHat(int8_t val, bool is_csl) {
+        val = _hatDebouncer.get(val);
+        if (is_csl) { // CSL
+            switch (val) {
+                case 4:
+                    val = 0;
+                    break;
+                case 2:
+                    val = 2;
+                    break;
+                case 8:
+                    val = 4;
+                    break;
+                case 16:
+                    val = 6;
+                    break;
+                default:
+                    val = 0xFF;
+            }
+        } else { // CSW
+            switch (val) {
+                case 1:
+                    val = 0;
+                    break;
+                case 2:
+                    val = 6;
+                    break;
+                case 4:
+                    val = 2;
+                    break;
+                case 8:
+                    val = 4;
+                    break;
+                default:
+                    val = 0xFF;
+            }
+        }
+        Joystick.hat(val);
+    }
+
 private:
+    Debouncer _hatDebouncer = Debouncer();
     Debouncer* _buttonDebouncers = new Debouncer[89];
 };
 
