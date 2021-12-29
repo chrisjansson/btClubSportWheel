@@ -54,7 +54,6 @@ void whClear();
 
 csw_in_t csw_in;
 
-csl_in_t csl_in;
 csl_out_t csl_out;
 
 mcl_in_t mcl_in;
