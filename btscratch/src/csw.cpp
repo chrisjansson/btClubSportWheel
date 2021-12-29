@@ -76,8 +76,6 @@ byte rotary_debounce = 0;
 int8_t rotary_value = 0;
 uint8_t main_link_id = 1;
 
-uint8_t clutch_max = 0xFF;
-
 void setup() {
     fsetup();
 
@@ -163,142 +161,11 @@ void csl_loop() {
 void mcl_loop() {
     // McLaren GT3
 
-    transferMclData(&mcl_out, &mcl_in, sizeof(mcl_out.raw));
+    wheel.transferData();
     show_firmware_version();
 
-    // Wheel ID
-    wheel.setId(mcl_in.id);
+    wheel.process();
 
-    wheel.hat(mcl_in.buttons[0] & 0x0f, false);
-
-    // All buttons
-    wheel.button(1, mcl_in.buttons[0] & 0x80); // Y
-    wheel.button(2, mcl_in.buttons[0] & 0x40); // B
-    wheel.button(3, mcl_in.buttons[0] & 0x20); // X
-    wheel.button(4, mcl_in.buttons[0] & 0x10); // A
-    wheel.button(5, mcl_in.buttons[1] & 0x80); // P
-    wheel.button(6, mcl_in.buttons[1] & 0x40); // N
-    wheel.button(7, mcl_in.buttons[1] & 0x20); // LSB
-
-    wheel.button(9, mcl_in.buttons[1] & 0x04); // RSB
-
-    wheel.button(8, (mcl_in.buttons[1] & 0x10) && ((mcl_in.garbage[3] & 0xF0) == 0x10));  // switch left up
-    wheel.button(19, (mcl_in.buttons[2] & 0x80) && ((mcl_in.garbage[3] & 0xF0) == 0x10)); // switch left down
-    wheel.button(10, (mcl_in.buttons[1] & 0x02) && ((mcl_in.garbage[3] & 0xF0) == 0x10)); // switch right up
-    wheel.button(20, (mcl_in.buttons[2] & 0x40) && ((mcl_in.garbage[3] & 0xF0) == 0x10)); // switch right down
-
-    wheel.button(33, (mcl_in.buttons[1] & 0x10) && ((mcl_in.garbage[3] & 0xF0) == 0x20)); // switch left up
-    wheel.button(34, (mcl_in.buttons[2] & 0x80) && ((mcl_in.garbage[3] & 0xF0) == 0x20)); // switch left down
-    wheel.button(35, (mcl_in.buttons[1] & 0x02) && ((mcl_in.garbage[3] & 0xF0) == 0x20)); // switch right up
-    wheel.button(36, (mcl_in.buttons[2] & 0x40) && ((mcl_in.garbage[3] & 0xF0) == 0x20)); // switch right down
-
-    wheel.button(37, (mcl_in.buttons[1] & 0x10) && ((mcl_in.garbage[3] & 0xF0) == 0x30)); // switch left up
-    wheel.button(38, (mcl_in.buttons[2] & 0x80) && ((mcl_in.garbage[3] & 0xF0) == 0x30)); // switch left down
-    wheel.button(39, (mcl_in.buttons[1] & 0x02) && ((mcl_in.garbage[3] & 0xF0) == 0x30)); // switch right up
-    wheel.button(40, (mcl_in.buttons[2] & 0x40) && ((mcl_in.garbage[3] & 0xF0) == 0x30)); // switch right down
-
-    wheel.button(41, (mcl_in.buttons[1] & 0x10) && ((mcl_in.garbage[3] & 0xF0) == 0x40)); // switch left up
-    wheel.button(42, (mcl_in.buttons[2] & 0x80) && ((mcl_in.garbage[3] & 0xF0) == 0x40)); // switch left down
-    wheel.button(43, (mcl_in.buttons[1] & 0x02) && ((mcl_in.garbage[3] & 0xF0) == 0x40)); // switch right up
-    wheel.button(44, (mcl_in.buttons[2] & 0x40) && ((mcl_in.garbage[3] & 0xF0) == 0x40)); // switch right down
-
-    wheel.button(45, (mcl_in.buttons[1] & 0x10) && ((mcl_in.garbage[3] & 0xF0) == 0x50)); // switch left up
-    wheel.button(46, (mcl_in.buttons[2] & 0x80) && ((mcl_in.garbage[3] & 0xF0) == 0x50)); // switch left down
-    wheel.button(47, (mcl_in.buttons[1] & 0x02) && ((mcl_in.garbage[3] & 0xF0) == 0x50)); // switch right up
-    wheel.button(48, (mcl_in.buttons[2] & 0x40) && ((mcl_in.garbage[3] & 0xF0) == 0x50)); // switch right down
-
-    wheel.button(49, (mcl_in.buttons[1] & 0x10) && ((mcl_in.garbage[3] & 0xF0) == 0x60)); // switch left up
-    wheel.button(50, (mcl_in.buttons[2] & 0x80) && ((mcl_in.garbage[3] & 0xF0) == 0x60)); // switch left down
-    wheel.button(51, (mcl_in.buttons[1] & 0x02) && ((mcl_in.garbage[3] & 0xF0) == 0x60)); // switch right up
-    wheel.button(52, (mcl_in.buttons[2] & 0x40) && ((mcl_in.garbage[3] & 0xF0) == 0x60)); // switch right down
-
-    wheel.button(53, (mcl_in.buttons[1] & 0x10) && ((mcl_in.garbage[3] & 0xF0) == 0x70)); // switch left up
-    wheel.button(54, (mcl_in.buttons[2] & 0x80) && ((mcl_in.garbage[3] & 0xF0) == 0x70)); // switch left down
-    wheel.button(55, (mcl_in.buttons[1] & 0x02) && ((mcl_in.garbage[3] & 0xF0) == 0x70)); // switch right up
-    wheel.button(56, (mcl_in.buttons[2] & 0x40) && ((mcl_in.garbage[3] & 0xF0) == 0x70)); // switch right down
-
-    wheel.button(57, (mcl_in.buttons[1] & 0x10) && ((mcl_in.garbage[3] & 0xF0) == 0x80)); // switch left up
-    wheel.button(58, (mcl_in.buttons[2] & 0x80) && ((mcl_in.garbage[3] & 0xF0) == 0x80)); // switch left down
-    wheel.button(59, (mcl_in.buttons[1] & 0x02) && ((mcl_in.garbage[3] & 0xF0) == 0x80)); // switch right up
-    wheel.button(60, (mcl_in.buttons[2] & 0x40) && ((mcl_in.garbage[3] & 0xF0) == 0x80)); // switch right down
-
-    wheel.button(61, (mcl_in.buttons[1] & 0x10) && ((mcl_in.garbage[3] & 0xF0) == 0x90)); // switch left up
-    wheel.button(62, (mcl_in.buttons[2] & 0x80) && ((mcl_in.garbage[3] & 0xF0) == 0x90)); // switch left down
-    wheel.button(63, (mcl_in.buttons[1] & 0x02) && ((mcl_in.garbage[3] & 0xF0) == 0x90)); // switch right up
-    wheel.button(64, (mcl_in.buttons[2] & 0x40) && ((mcl_in.garbage[3] & 0xF0) == 0x90)); // switch right down
-
-    wheel.button(65, (mcl_in.buttons[1] & 0x10) && ((mcl_in.garbage[3] & 0xF0) == 0xA0)); // switch left up
-    wheel.button(66, (mcl_in.buttons[2] & 0x80) && ((mcl_in.garbage[3] & 0xF0) == 0xA0)); // switch left down
-    wheel.button(67, (mcl_in.buttons[1] & 0x02) && ((mcl_in.garbage[3] & 0xF0) == 0xA0)); // switch right up
-    wheel.button(68, (mcl_in.buttons[2] & 0x40) && ((mcl_in.garbage[3] & 0xF0) == 0xA0)); // switch right down
-
-    wheel.button(69, (mcl_in.buttons[1] & 0x10) && ((mcl_in.garbage[3] & 0xF0) == 0xB0)); // switch left up
-    wheel.button(70, (mcl_in.buttons[2] & 0x80) && ((mcl_in.garbage[3] & 0xF0) == 0xB0)); // switch left down
-    wheel.button(71, (mcl_in.buttons[1] & 0x02) && ((mcl_in.garbage[3] & 0xF0) == 0xB0)); // switch right up
-    wheel.button(72, (mcl_in.buttons[2] & 0x40) && ((mcl_in.garbage[3] & 0xF0) == 0xB0)); // switch right down
-
-    wheel.button(73, (mcl_in.buttons[1] & 0x10) && ((mcl_in.garbage[3] & 0xF0) == 0xC0)); // switch left up
-    wheel.button(74, (mcl_in.buttons[2] & 0x80) && ((mcl_in.garbage[3] & 0xF0) == 0xC0)); // switch left down
-    wheel.button(75, (mcl_in.buttons[1] & 0x02) && ((mcl_in.garbage[3] & 0xF0) == 0xC0)); // switch right up
-    wheel.button(76, (mcl_in.buttons[2] & 0x40) && ((mcl_in.garbage[3] & 0xF0) == 0xC0)); // switch right down
-
-    wheel.button(12, mcl_in.buttons[2] & 0x04); // hat button
-    wheel.button(14, mcl_in.buttons[2] & 0x02); // xbox
-
-    // paddles shitfer
-    wheel.button(15, mcl_in.buttons[1] & 0x08); // left
-    wheel.button(16, mcl_in.buttons[1] & 0x01); // right
-
-    rotary_value = mcl_in.encoder;
-
-    if ((mcl_in.garbage[2] & 0x0F) == 0x02 && !mcl_in.axisX) // left clutch fully pressed
-    {
-        clutch_max = constrain(clutch_max + rotary_value, 0, 0xFF);
-    } else {
-        wheel.button(17, rotary_value <= -1); // left
-        wheel.button(18, rotary_value >= 1);  // right
-    }
-
-    // clutch paddle
-    switch (mcl_in.garbage[2] & 0x0F) {
-        case 0x01:
-            // bite point
-            wheel.doubleClutch(~mcl_in.axisX, ~mcl_in.axisY);
-            break;
-        case 0x02:
-            // bite point advanced
-            wheel.doubleClutch(map(~mcl_in.axisX & 0xFF, 0, 0xFF, 0, clutch_max), ~mcl_in.axisY & 0xff);
-            break;
-        default:
-            wheel.doubleAxis(~mcl_in.axisX, ~mcl_in.axisY);
-    }
-
-    //wheel.button(11, mcl_in.buttons[2] & 0x20); // display button
-
-    wheel.button(21, ((mcl_in.garbage[3] & 0x0f) == 0x01) && !((mcl_in.buttons[2] & 0x20) == 0x20));
-    wheel.button(22, ((mcl_in.garbage[3] & 0x0f) == 0x02) && !((mcl_in.buttons[2] & 0x20) == 0x20));
-    wheel.button(23, ((mcl_in.garbage[3] & 0x0f) == 0x03) && !((mcl_in.buttons[2] & 0x20) == 0x20));
-    wheel.button(24, ((mcl_in.garbage[3] & 0x0f) == 0x04) && !((mcl_in.buttons[2] & 0x20) == 0x20));
-    wheel.button(25, ((mcl_in.garbage[3] & 0x0f) == 0x05) && !((mcl_in.buttons[2] & 0x20) == 0x20));
-    wheel.button(26, ((mcl_in.garbage[3] & 0x0f) == 0x06) && !((mcl_in.buttons[2] & 0x20) == 0x20));
-    wheel.button(27, ((mcl_in.garbage[3] & 0x0f) == 0x07) && !((mcl_in.buttons[2] & 0x20) == 0x20));
-    wheel.button(28, ((mcl_in.garbage[3] & 0x0f) == 0x08) && !((mcl_in.buttons[2] & 0x20) == 0x20));
-    wheel.button(29, ((mcl_in.garbage[3] & 0x0f) == 0x09) && !((mcl_in.buttons[2] & 0x20) == 0x20));
-    wheel.button(30, ((mcl_in.garbage[3] & 0x0f) == 0x0A) && !((mcl_in.buttons[2] & 0x20) == 0x20));
-    wheel.button(31, ((mcl_in.garbage[3] & 0x0f) == 0x0B) && !((mcl_in.buttons[2] & 0x20) == 0x20));
-    wheel.button(32, ((mcl_in.garbage[3] & 0x0f) == 0x0C) && !((mcl_in.buttons[2] & 0x20) == 0x20));
-
-    wheel.stick(0, 0);
-
-#ifdef HAS_DEBUG
-    Serial.print("MCL_IN:");
-    for (int i = 0; i < sizeof(mcl_in.raw); i++) {
-
-        Serial.print(mcl_in.raw[i], HEX);
-        Serial.print(":");
-    }
-    Serial.println();
-#endif
 }
 
 void loop() {
@@ -385,7 +252,6 @@ void loop() {
 
 void whClear() {
     wheel.clear();
-    clutch_max = 0xFF;
     show_fwvers = true;
     fwShownForDuration = 0;
 }
