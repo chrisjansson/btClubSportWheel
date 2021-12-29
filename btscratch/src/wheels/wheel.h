@@ -99,6 +99,19 @@ public:
         for (int i = 1; i <= 37; ++i) {
             button(i, 0);
         }
+        clearBase();
+    }
+
+    virtual void transferData() {
+
+    }
+
+    virtual void process() {
+
+    }
+
+    virtual void clearBase() {
+
     }
 
     csw_out_t _csw_out;
