@@ -109,14 +109,6 @@ void setup() {
     usb_time = micros();
 }
 
-void csw_loop() {
-    wheel.transferData();
-
-    show_firmware_version();
-
-    wheel.process();
-}
-
 void csl_loop() {
     // csl stuff
     transferCslData(&csl_out, &csl_in, sizeof(csl_out.raw), 0x00);
@@ -158,16 +150,6 @@ void csl_loop() {
     wheel.stick(0, 0);
 }
 
-void mcl_loop() {
-    // McLaren GT3
-
-    wheel.transferData();
-    show_firmware_version();
-
-    wheel.process();
-
-}
-
 void loop() {
 #ifdef IS_USB
     // Fetching HID packet
@@ -180,14 +162,17 @@ void loop() {
 
     switch (detectWheelType()) {
         case CSW_WHEEL:
-            wheel = csw_wheel;
-            csw_loop();
+            wheel.transferData();
+            show_firmware_version();
+            wheel.process();
             break;
         case CSL_WHEEL:
             csl_loop();
             break;
         case MCL_WHEEL:
-            mcl_loop();
+            wheel.transferData();
+            show_firmware_version();
+            wheel.process();
             break;
         default:
             // no wheel  ?
