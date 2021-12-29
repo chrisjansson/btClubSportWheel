@@ -11,7 +11,7 @@
 
 class wheel {
 public:
-    wheel(){
+    wheel() {
         // debounce timer for rotary encoder
         _buttonDebouncers[17].interval(30);
         _buttonDebouncers[18].interval(30);
@@ -105,7 +105,7 @@ public:
 
 private:
     Debouncer _hatDebouncer = Debouncer();
-    Debouncer* _buttonDebouncers = new Debouncer[89];
+    Debouncer *_buttonDebouncers = new Debouncer[89];
 };
 
 
