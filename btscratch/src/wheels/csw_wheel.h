@@ -263,8 +263,58 @@ class csw_wheel : public wheel {
         }
     }
 
+    void display_firmware_version() override {
+        String firmware_version = String(_csw_in.fwvers);
+        if (_csw_in.id == CSLMCLGT3) {
+            _csw_out.raw[1] = 0x11;
+            // Erase all
+            _csw_out.raw[2] = 0x0A;
+            _csw_out.raw[3] = 0x0A;
+            _csw_out.raw[4] = 0x0A;
+            //
+            _csw_out.raw[2] = firmware_version.charAt(0);
+            if (firmware_version.length() > 1)
+                _csw_out.raw[3] = firmware_version.charAt(1);
+            if (firmware_version.length() > 2)
+                _csw_out.raw[4] = firmware_version.charAt(2);
+        } else {
+            _csw_out.disp[0] = 0;
+            _csw_out.disp[1] = 0;
+            _csw_out.disp[2] = 0;
+
+            _csw_out.disp[0] = csw_ascii_to_7seg(firmware_version.charAt(0));
+            if (firmware_version.length() > 1)
+                _csw_out.disp[1] = csw_ascii_to_7seg(firmware_version.charAt(1));
+            if (firmware_version.length() > 2)
+                _csw_out.disp[2] = csw_ascii_to_7seg(firmware_version.charAt(2));
+        }
+    }
+
     uint8_t clutch_max = 0xFF;
     csw_in_t _csw_in;
+
+    const unsigned char seven_seg_digits_decode_gfedcba[75] = {
+/*  0     1     2     3     4     5     6     7     8     9     :     ;     */
+            0x3F, 0x06, 0x5B, 0x4F, 0x66, 0x6D, 0x7D, 0x07, 0x7F, 0x6F, 0x00, 0x00,
+/*  <     =     >     ?     @     A     B     C     D     E     F     G     */
+            0x00, 0x00, 0x00, 0x00, 0x00, 0x77, 0x7C, 0x39, 0x5E, 0x79, 0x71, 0x3D,
+/*  H     I     J     K     L     M     N     O     P     Q     R     S     */
+            0x76, 0x30, 0x1E, 0x75, 0x38, 0x55, 0x54, 0x5C, 0x73, 0x67, 0x50, 0x6D,
+/*  T     U     V     W     X     Y     Z     [     \     ]     ^     _     */
+            0x78, 0x3E, 0x1C, 0x1D, 0x64, 0x6E, 0x5B, 0x00, 0x00, 0x00, 0x00, 0x00,
+/*  `     a     b     c     d     e     f     g     h     i     j     k     */
+            0x00, 0x77, 0x7C, 0x39, 0x5E, 0x79, 0x71, 0x3D, 0x76, 0x30, 0x1E, 0x75,
+/*  l     m     n     o     p     q     r     s     t     u     v     w     */
+            0x38, 0x55, 0x54, 0x5C, 0x73, 0x67, 0x50, 0x6D, 0x78, 0x3E, 0x1C, 0x1D,
+/*  x     y     z     */
+            0x64, 0x6E, 0x5B
+    };
+
+    int csw_ascii_to_7seg(char c) {
+        if (c > (unsigned char) 'z')
+            return 0x00;
+        return seven_seg_digits_decode_gfedcba[c - '0'];
+    }
 };
 
 

@@ -163,6 +163,21 @@ class mcl_wheel : public wheel {
         mcl_out.raw[9] = 0x00;
     }
 
+    void display_firmware_version() override {
+        String fw_vers = String(mcl_in.fwvers);
+        mcl_out.raw[1] = 0x11;
+        // Erase all
+        mcl_out.raw[2] = 0x0A;
+        mcl_out.raw[3] = 0x0A;
+        mcl_out.raw[4] = 0x0A;
+        //
+        mcl_out.raw[2] = fw_vers.charAt(0);
+        if (fw_vers.length() > 1)
+            mcl_out.raw[3] = fw_vers.charAt(1);
+        if (fw_vers.length() > 2)
+            mcl_out.raw[4] = fw_vers.charAt(2);
+    }
+
     mcl_in_t mcl_in;
     mcl_out_t mcl_out;
     uint8_t clutch_max = 0xFF;
