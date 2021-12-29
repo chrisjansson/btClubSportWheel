@@ -90,28 +90,28 @@ void loop() {
     uint16_t hid_size;
     hid_size = Joystick.recv(&hid_pck, 0);
     if (hid_size > 0) {
-        WheelBase->receive_hid_from_host(1, hid_size, hid_pck);
+        wheel->receive_hid_from_host(1, hid_size, hid_pck);
     }
 #endif
 
     switch (detectWheelType()) {
         case CSW_WHEEL:
-            WheelBase = &csw_wheel;
-            WheelBase->transferData();
-            WheelBase->show_firmware_version();
-            WheelBase->process();
+            wheel = &csw_wheel;
+            wheel->transferData();
+            wheel->show_firmware_version();
+            wheel->process();
             break;
         case CSL_WHEEL:
-            WheelBase = &csl_wheel;
-            WheelBase->transferData();
-            WheelBase->show_firmware_version();
-            WheelBase->process();
+            wheel = &csl_wheel;
+            wheel->transferData();
+            wheel->show_firmware_version();
+            wheel->process();
             break;
         case MCL_WHEEL:
-            WheelBase = &mcl_wheel;
-            WheelBase->transferData();
-            WheelBase->show_firmware_version();
-            WheelBase->process();
+            wheel = &mcl_wheel;
+            wheel->transferData();
+            wheel->show_firmware_version();
+            wheel->process();
             break;
         default:
             // no WheelBase  ?
@@ -173,7 +173,7 @@ void loop() {
 }
 
 void whClear() {
-    WheelBase->clear();
+    wheel->clear();
 }
 
 void idle() {
