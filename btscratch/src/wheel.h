@@ -20,24 +20,24 @@ public:
         _hatDebouncer.interval(50);
     }
 
-    void whButton(uint8_t button, bool val) {
+    void button(uint8_t button, bool val) {
         val = _buttonDebouncers[button].get(val);
         Joystick.button(button, val);
     }
 
-    void whStick(unsigned int x, unsigned int y) {
+    void stick(unsigned int x, unsigned int y) {
         x = 255 - (x + 127);
         y = y + 127;
         Joystick.X(x);
         Joystick.Y(y);
     }
 
-    void whDoubleAxis(unsigned int x, unsigned int y) {
+    void doubleAxis(unsigned int x, unsigned int y) {
         Joystick.clutch1(x);
         Joystick.clutch2(y);
     }
 
-    void whDoubleClutch(unsigned int x, unsigned int y) {
+    void doubleClutch(unsigned int x, unsigned int y) {
         if (y > x)
             x = y;
 
@@ -45,7 +45,7 @@ public:
         Joystick.clutch2(0);
     }
 
-    void whHat(int8_t val, bool is_csl) {
+    void hat(int8_t val, bool is_csl) {
         val = _hatDebouncer.get(val);
         if (is_csl) { // CSL
             switch (val) {
@@ -85,9 +85,20 @@ public:
         Joystick.hat(val);
     }
 
-    void whSetId(unsigned int val) {
+    void setId(unsigned int val) {
         _csw_out.id = val & 0xFF;
         Joystick.setWheel(val);
+    }
+
+    void clear() {
+        setId(NO_RIM);
+        stick(0, 0);
+        hat(0, false);
+        doubleAxis(0x00, 0x00);
+        //TODO: 37 looks supect, there are 89 debouncers
+        for (int i = 1; i <= 37; ++i) {
+            button(i, 0);
+        }
     }
 
     csw_out_t _csw_out;
