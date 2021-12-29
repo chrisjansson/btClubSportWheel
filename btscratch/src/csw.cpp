@@ -25,6 +25,7 @@
 #include "fanatec.h"
 #include "Debouncer.h"
 #include "Joystick.h"
+#include "wheel.h"
 
 #define MAX_SPEED 5000
 
@@ -49,8 +50,6 @@ void show_firmware_version();
 
 /* Wheel inputs */
 void whClear();
-
-void whButton(uint8_t button, bool val);
 
 void whStick(unsigned int x, unsigned int y);
 
@@ -78,7 +77,8 @@ uint32_t usb_time;
 
 uint8_t hid_pck[7];
 
-Debouncer *btDebncer = new Debouncer[89];
+wheel wheel;
+
 Debouncer hatDebncer = Debouncer();
 
 byte rotary_debounce = 0;
@@ -93,9 +93,6 @@ void setup() {
 
     // debounce timer for hat switch
     hatDebncer.interval(50);
-    // debounce timer for rotary encoder
-    btDebncer[17].interval(30);
-    btDebncer[18].interval(30);
 
     whClear();
 
@@ -152,16 +149,16 @@ void csw_loop() {
     whStick(csw_in.axisX, csw_in.axisY);
 
     // All buttons
-    whButton(1, csw_in.buttons[0] & 0x80);  // first top right
-    whButton(2, csw_in.buttons[0] & 0x40);  // middle right
-    whButton(3, csw_in.buttons[0] & 0x20);  // second top right
-    whButton(4, csw_in.buttons[0] & 0x10);  // bottom right
-    whButton(5, csw_in.buttons[1] & 0x80);  // third center
-    whButton(6, csw_in.buttons[1] & 0x40);  // first center
-    whButton(7, csw_in.buttons[1] & 0x20);  // middle left
-    whButton(9, csw_in.buttons[1] & 0x04);  // bottom left
-    whButton(11, csw_in.buttons[2] & 0x08); // second center
-    whButton(12, csw_in.buttons[2] & 0x04); // stick button
+    wheel.whButton(1, csw_in.buttons[0] & 0x80);  // first top right
+    wheel.whButton(2, csw_in.buttons[0] & 0x40);  // middle right
+    wheel.whButton(3, csw_in.buttons[0] & 0x20);  // second top right
+    wheel.whButton(4, csw_in.buttons[0] & 0x10);  // bottom right
+    wheel.whButton(5, csw_in.buttons[1] & 0x80);  // third center
+    wheel.whButton(6, csw_in.buttons[1] & 0x40);  // first center
+    wheel.whButton(7, csw_in.buttons[1] & 0x20);  // middle left
+    wheel.whButton(9, csw_in.buttons[1] & 0x04);  // bottom left
+    wheel.whButton(11, csw_in.buttons[2] & 0x08); // second center
+    wheel.whButton(12, csw_in.buttons[2] & 0x04); // stick button
 
     // paddles shitfer
 
@@ -173,58 +170,58 @@ void csw_loop() {
         right_paddle |= csw_in.garbage[0] & 0x08;
     }
 
-    whButton(15, left_paddle); // left
-    whButton(16, right_paddle); // right
+    wheel.whButton(15, left_paddle); // left
+    wheel.whButton(16, right_paddle); // right
 
     rotary_value = csw_in.encoder;
 
     if (csw_in.id != CSLMCLGT3) {
-        whButton(8, csw_in.buttons[1] & 0x10);  // first top left
-        whButton(10, csw_in.buttons[1] & 0x02); // second top left
-        whButton(13, csw_in.buttons[2] & 0x02); // hat button
-        whButton(14, csw_in.buttons[2] & 0x20); // display button
+        wheel.whButton(8, csw_in.buttons[1] & 0x10);  // first top left
+        wheel.whButton(10, csw_in.buttons[1] & 0x02); // second top left
+        wheel.whButton(13, csw_in.buttons[2] & 0x02); // hat button
+        wheel.whButton(14, csw_in.buttons[2] & 0x20); // display button
 
-        whButton(17, rotary_value == -1); // left
-        whButton(18, rotary_value == 1);  // right
+        wheel.whButton(17, rotary_value == -1); // left
+        wheel.whButton(18, rotary_value == 1);  // right
     }
 
     if (csw_in.id == UNIHUB || csw_in.id == XBOXHUB) {
         // Uni Hub extra buttons
         // BUT_5 array (optional 3 buttons)
-        whButton(19, csw_in.btnHub[0] & 0x08);
-        whButton(20, csw_in.btnHub[0] & 0x10);
-        whButton(21, csw_in.btnHub[0] & 0x20);
+        wheel.whButton(19, csw_in.btnHub[0] & 0x08);
+        wheel.whButton(20, csw_in.btnHub[0] & 0x10);
+        wheel.whButton(21, csw_in.btnHub[0] & 0x20);
 
         // Playstation buttons
-        whButton(22, csw_in.btnPS[0] & 0x01);
-        whButton(23, csw_in.btnPS[0] & 0x02);
-        whButton(24, csw_in.btnPS[0] & 0x04);
-        whButton(25, csw_in.btnPS[0] & 0x08);
-        whButton(26, csw_in.btnPS[0] & 0x10);
-        whButton(27, csw_in.btnPS[0] & 0x20);
-        whButton(28, csw_in.btnPS[0] & 0x40);
-        whButton(29, csw_in.btnPS[0] & 0x80);
+        wheel.whButton(22, csw_in.btnPS[0] & 0x01);
+        wheel.whButton(23, csw_in.btnPS[0] & 0x02);
+        wheel.whButton(24, csw_in.btnPS[0] & 0x04);
+        wheel.whButton(25, csw_in.btnPS[0] & 0x08);
+        wheel.whButton(26, csw_in.btnPS[0] & 0x10);
+        wheel.whButton(27, csw_in.btnPS[0] & 0x20);
+        wheel.whButton(28, csw_in.btnPS[0] & 0x40);
+        wheel.whButton(29, csw_in.btnPS[0] & 0x80);
 
-        whButton(30, csw_in.btnPS[1] & 0x01);
-        whButton(31, csw_in.btnPS[1] & 0x02);
-        whButton(32, csw_in.btnPS[1] & 0x04);
-        whButton(33, csw_in.btnPS[1] & 0x08);
-        whButton(34, csw_in.btnPS[1] & 0x10);
-        whButton(35, csw_in.btnPS[1] & 0x20);
-        whButton(36, csw_in.btnPS[1] & 0x40);
-        whButton(37, csw_in.btnPS[1] & 0x80);
+        wheel.whButton(30, csw_in.btnPS[1] & 0x01);
+        wheel.whButton(31, csw_in.btnPS[1] & 0x02);
+        wheel.whButton(32, csw_in.btnPS[1] & 0x04);
+        wheel.whButton(33, csw_in.btnPS[1] & 0x08);
+        wheel.whButton(34, csw_in.btnPS[1] & 0x10);
+        wheel.whButton(35, csw_in.btnPS[1] & 0x20);
+        wheel.whButton(36, csw_in.btnPS[1] & 0x40);
+        wheel.whButton(37, csw_in.btnPS[1] & 0x80);
 
     }
 
     if (csw_in.id == XBOXHUB) {
         // Xbox Hub has 1 extra button
-        whButton(38, csw_in.btnHub[1] & 0x08);
+        wheel.whButton(38, csw_in.btnHub[1] & 0x08);
 
         //APM
-        whButton(39, csw_in.garbage[0] & 0x01);
-        // whButton(40, csw_in.garbage[0] & 0x02);
-        whButton(41, csw_in.garbage[0] & 0x04);
-        // whButton(42, csw_in.garbage[0] & 0x08);
+        wheel.whButton(39, csw_in.garbage[0] & 0x01);
+        // wheel.whButton(40, csw_in.garbage[0] & 0x02);
+        wheel.whButton(41, csw_in.garbage[0] & 0x04);
+        // wheel.whButton(42, csw_in.garbage[0] & 0x08);
         whDoubleAxis(csw_in.garbage[1], csw_in.garbage[2]);
     }
 
@@ -233,98 +230,98 @@ void csw_loop() {
     // Serial.println(String("button: ") + hid_data[3]);
 
     if (csw_in.id == CSLMCLGT3) {
-        whButton(8, (csw_in.buttons[1] & 0x10) && ((csw_in.garbage[3] & 0xF0) == 0x10));  // switch left up
-        whButton(19,
+        wheel.whButton(8, (csw_in.buttons[1] & 0x10) && ((csw_in.garbage[3] & 0xF0) == 0x10));  // switch left up
+        wheel.whButton(19,
                  (csw_in.buttons[2] & 0x80) && ((csw_in.garbage[3] & 0xF0) == 0x10)); // switch left down
-        whButton(10, (csw_in.buttons[1] & 0x02) && ((csw_in.garbage[3] & 0xF0) == 0x10)); // switch right up
-        whButton(20,
+        wheel.whButton(10, (csw_in.buttons[1] & 0x02) && ((csw_in.garbage[3] & 0xF0) == 0x10)); // switch right up
+        wheel.whButton(20,
                  (csw_in.buttons[2] & 0x40) && ((csw_in.garbage[3] & 0xF0) == 0x10)); // switch right down
 
-        whButton(33, (csw_in.buttons[1] & 0x10) && ((csw_in.garbage[3] & 0xF0) == 0x20)); // switch left up
-        whButton(34,
+        wheel.whButton(33, (csw_in.buttons[1] & 0x10) && ((csw_in.garbage[3] & 0xF0) == 0x20)); // switch left up
+        wheel.whButton(34,
                  (csw_in.buttons[2] & 0x80) && ((csw_in.garbage[3] & 0xF0) == 0x20)); // switch left down
-        whButton(35, (csw_in.buttons[1] & 0x02) && ((csw_in.garbage[3] & 0xF0) == 0x20)); // switch right up
-        whButton(36,
+        wheel.whButton(35, (csw_in.buttons[1] & 0x02) && ((csw_in.garbage[3] & 0xF0) == 0x20)); // switch right up
+        wheel.whButton(36,
                  (csw_in.buttons[2] & 0x40) && ((csw_in.garbage[3] & 0xF0) == 0x20)); // switch right down
 
-        whButton(37, (csw_in.buttons[1] & 0x10) && ((csw_in.garbage[3] & 0xF0) == 0x30)); // switch left up
-        whButton(38,
+        wheel.whButton(37, (csw_in.buttons[1] & 0x10) && ((csw_in.garbage[3] & 0xF0) == 0x30)); // switch left up
+        wheel.whButton(38,
                  (csw_in.buttons[2] & 0x80) && ((csw_in.garbage[3] & 0xF0) == 0x30)); // switch left down
-        whButton(39, (csw_in.buttons[1] & 0x02) && ((csw_in.garbage[3] & 0xF0) == 0x30)); // switch right up
-        whButton(40,
+        wheel.whButton(39, (csw_in.buttons[1] & 0x02) && ((csw_in.garbage[3] & 0xF0) == 0x30)); // switch right up
+        wheel.whButton(40,
                  (csw_in.buttons[2] & 0x40) && ((csw_in.garbage[3] & 0xF0) == 0x30)); // switch right down
 
-        whButton(41, (csw_in.buttons[1] & 0x10) && ((csw_in.garbage[3] & 0xF0) == 0x40)); // switch left up
-        whButton(42,
+        wheel.whButton(41, (csw_in.buttons[1] & 0x10) && ((csw_in.garbage[3] & 0xF0) == 0x40)); // switch left up
+        wheel.whButton(42,
                  (csw_in.buttons[2] & 0x80) && ((csw_in.garbage[3] & 0xF0) == 0x40)); // switch left down
-        whButton(43, (csw_in.buttons[1] & 0x02) && ((csw_in.garbage[3] & 0xF0) == 0x40)); // switch right up
-        whButton(44,
+        wheel.whButton(43, (csw_in.buttons[1] & 0x02) && ((csw_in.garbage[3] & 0xF0) == 0x40)); // switch right up
+        wheel.whButton(44,
                  (csw_in.buttons[2] & 0x40) && ((csw_in.garbage[3] & 0xF0) == 0x40)); // switch right down
 
-        whButton(45, (csw_in.buttons[1] & 0x10) && ((csw_in.garbage[3] & 0xF0) == 0x50)); // switch left up
-        whButton(46,
+        wheel.whButton(45, (csw_in.buttons[1] & 0x10) && ((csw_in.garbage[3] & 0xF0) == 0x50)); // switch left up
+        wheel.whButton(46,
                  (csw_in.buttons[2] & 0x80) && ((csw_in.garbage[3] & 0xF0) == 0x50)); // switch left down
-        whButton(47, (csw_in.buttons[1] & 0x02) && ((csw_in.garbage[3] & 0xF0) == 0x50)); // switch right up
-        whButton(48,
+        wheel.whButton(47, (csw_in.buttons[1] & 0x02) && ((csw_in.garbage[3] & 0xF0) == 0x50)); // switch right up
+        wheel.whButton(48,
                  (csw_in.buttons[2] & 0x40) && ((csw_in.garbage[3] & 0xF0) == 0x50)); // switch right down
 
-        whButton(49, (csw_in.buttons[1] & 0x10) && ((csw_in.garbage[3] & 0xF0) == 0x60)); // switch left up
-        whButton(50,
+        wheel.whButton(49, (csw_in.buttons[1] & 0x10) && ((csw_in.garbage[3] & 0xF0) == 0x60)); // switch left up
+        wheel.whButton(50,
                  (csw_in.buttons[2] & 0x80) && ((csw_in.garbage[3] & 0xF0) == 0x60)); // switch left down
-        whButton(51, (csw_in.buttons[1] & 0x02) && ((csw_in.garbage[3] & 0xF0) == 0x60)); // switch right up
-        whButton(52,
+        wheel.whButton(51, (csw_in.buttons[1] & 0x02) && ((csw_in.garbage[3] & 0xF0) == 0x60)); // switch right up
+        wheel.whButton(52,
                  (csw_in.buttons[2] & 0x40) && ((csw_in.garbage[3] & 0xF0) == 0x60)); // switch right down
 
-        whButton(53, (csw_in.buttons[1] & 0x10) && ((csw_in.garbage[3] & 0xF0) == 0x70)); // switch left up
-        whButton(54,
+        wheel.whButton(53, (csw_in.buttons[1] & 0x10) && ((csw_in.garbage[3] & 0xF0) == 0x70)); // switch left up
+        wheel.whButton(54,
                  (csw_in.buttons[2] & 0x80) && ((csw_in.garbage[3] & 0xF0) == 0x70)); // switch left down
-        whButton(55, (csw_in.buttons[1] & 0x02) && ((csw_in.garbage[3] & 0xF0) == 0x70)); // switch right up
-        whButton(56,
+        wheel.whButton(55, (csw_in.buttons[1] & 0x02) && ((csw_in.garbage[3] & 0xF0) == 0x70)); // switch right up
+        wheel.whButton(56,
                  (csw_in.buttons[2] & 0x40) && ((csw_in.garbage[3] & 0xF0) == 0x70)); // switch right down
 
-        whButton(57, (csw_in.buttons[1] & 0x10) && ((csw_in.garbage[3] & 0xF0) == 0x80)); // switch left up
-        whButton(58,
+        wheel.whButton(57, (csw_in.buttons[1] & 0x10) && ((csw_in.garbage[3] & 0xF0) == 0x80)); // switch left up
+        wheel.whButton(58,
                  (csw_in.buttons[2] & 0x80) && ((csw_in.garbage[3] & 0xF0) == 0x80)); // switch left down
-        whButton(59, (csw_in.buttons[1] & 0x02) && ((csw_in.garbage[3] & 0xF0) == 0x80)); // switch right up
-        whButton(60,
+        wheel.whButton(59, (csw_in.buttons[1] & 0x02) && ((csw_in.garbage[3] & 0xF0) == 0x80)); // switch right up
+        wheel.whButton(60,
                  (csw_in.buttons[2] & 0x40) && ((csw_in.garbage[3] & 0xF0) == 0x80)); // switch right down
 
-        whButton(61, (csw_in.buttons[1] & 0x10) && ((csw_in.garbage[3] & 0xF0) == 0x90)); // switch left up
-        whButton(62,
+        wheel.whButton(61, (csw_in.buttons[1] & 0x10) && ((csw_in.garbage[3] & 0xF0) == 0x90)); // switch left up
+        wheel.whButton(62,
                  (csw_in.buttons[2] & 0x80) && ((csw_in.garbage[3] & 0xF0) == 0x90)); // switch left down
-        whButton(63, (csw_in.buttons[1] & 0x02) && ((csw_in.garbage[3] & 0xF0) == 0x90)); // switch right up
-        whButton(64,
+        wheel.whButton(63, (csw_in.buttons[1] & 0x02) && ((csw_in.garbage[3] & 0xF0) == 0x90)); // switch right up
+        wheel.whButton(64,
                  (csw_in.buttons[2] & 0x40) && ((csw_in.garbage[3] & 0xF0) == 0x90)); // switch right down
 
-        whButton(65, (csw_in.buttons[1] & 0x10) && ((csw_in.garbage[3] & 0xF0) == 0xA0)); // switch left up
-        whButton(66,
+        wheel.whButton(65, (csw_in.buttons[1] & 0x10) && ((csw_in.garbage[3] & 0xF0) == 0xA0)); // switch left up
+        wheel.whButton(66,
                  (csw_in.buttons[2] & 0x80) && ((csw_in.garbage[3] & 0xF0) == 0xA0)); // switch left down
-        whButton(67, (csw_in.buttons[1] & 0x02) && ((csw_in.garbage[3] & 0xF0) == 0xA0)); // switch right up
-        whButton(68,
+        wheel.whButton(67, (csw_in.buttons[1] & 0x02) && ((csw_in.garbage[3] & 0xF0) == 0xA0)); // switch right up
+        wheel.whButton(68,
                  (csw_in.buttons[2] & 0x40) && ((csw_in.garbage[3] & 0xF0) == 0xA0)); // switch right down
 
-        whButton(69, (csw_in.buttons[1] & 0x10) && ((csw_in.garbage[3] & 0xF0) == 0xB0)); // switch left up
-        whButton(70,
+        wheel.whButton(69, (csw_in.buttons[1] & 0x10) && ((csw_in.garbage[3] & 0xF0) == 0xB0)); // switch left up
+        wheel.whButton(70,
                  (csw_in.buttons[2] & 0x80) && ((csw_in.garbage[3] & 0xF0) == 0xB0)); // switch left down
-        whButton(71, (csw_in.buttons[1] & 0x02) && ((csw_in.garbage[3] & 0xF0) == 0xB0)); // switch right up
-        whButton(72,
+        wheel.whButton(71, (csw_in.buttons[1] & 0x02) && ((csw_in.garbage[3] & 0xF0) == 0xB0)); // switch right up
+        wheel.whButton(72,
                  (csw_in.buttons[2] & 0x40) && ((csw_in.garbage[3] & 0xF0) == 0xB0)); // switch right down
 
-        whButton(73, (csw_in.buttons[1] & 0x10) && ((csw_in.garbage[3] & 0xF0) == 0xC0)); // switch left up
-        whButton(74,
+        wheel.whButton(73, (csw_in.buttons[1] & 0x10) && ((csw_in.garbage[3] & 0xF0) == 0xC0)); // switch left up
+        wheel.whButton(74,
                  (csw_in.buttons[2] & 0x80) && ((csw_in.garbage[3] & 0xF0) == 0xC0)); // switch left down
-        whButton(75, (csw_in.buttons[1] & 0x02) && ((csw_in.garbage[3] & 0xF0) == 0xC0)); // switch right up
-        whButton(76,
+        wheel.whButton(75, (csw_in.buttons[1] & 0x02) && ((csw_in.garbage[3] & 0xF0) == 0xC0)); // switch right up
+        wheel.whButton(76,
                  (csw_in.buttons[2] & 0x40) && ((csw_in.garbage[3] & 0xF0) == 0xC0)); // switch right down
 
-        whButton(14, csw_in.buttons[2] & 0x02); // xbox
+        wheel.whButton(14, csw_in.buttons[2] & 0x02); // xbox
 
         if ((csw_in.garbage[2] & 0x0F) == 0x02 && !csw_in.axisX) // left clutch fully pressed
         {
             clutch_max = constrain(clutch_max + rotary_value, 0, 0xFF);
         } else {
-            whButton(17, rotary_value <= -1); // left
-            whButton(18, rotary_value >= 1);  // right
+            wheel.whButton(17, rotary_value <= -1); // left
+            wheel.whButton(18, rotary_value >= 1);  // right
         }
 
         // clutch paddle
@@ -341,20 +338,20 @@ void csw_loop() {
                 whDoubleAxis(~csw_in.axisX, ~csw_in.axisY);
         }
 
-        //whButton(11, mcl_in.buttons[2] & 0x20); // display button
+        //wheel.whButton(11, mcl_in.buttons[2] & 0x20); // display button
 
-        whButton(21, ((csw_in.garbage[3] & 0x0f) == 0x01) && !((csw_in.buttons[2] & 0x20) == 0x20));
-        whButton(22, ((csw_in.garbage[3] & 0x0f) == 0x02) && !((csw_in.buttons[2] & 0x20) == 0x20));
-        whButton(23, ((csw_in.garbage[3] & 0x0f) == 0x03) && !((csw_in.buttons[2] & 0x20) == 0x20));
-        whButton(24, ((csw_in.garbage[3] & 0x0f) == 0x04) && !((csw_in.buttons[2] & 0x20) == 0x20));
-        whButton(25, ((csw_in.garbage[3] & 0x0f) == 0x05) && !((csw_in.buttons[2] & 0x20) == 0x20));
-        whButton(26, ((csw_in.garbage[3] & 0x0f) == 0x06) && !((csw_in.buttons[2] & 0x20) == 0x20));
-        whButton(27, ((csw_in.garbage[3] & 0x0f) == 0x07) && !((csw_in.buttons[2] & 0x20) == 0x20));
-        whButton(28, ((csw_in.garbage[3] & 0x0f) == 0x08) && !((csw_in.buttons[2] & 0x20) == 0x20));
-        whButton(29, ((csw_in.garbage[3] & 0x0f) == 0x09) && !((csw_in.buttons[2] & 0x20) == 0x20));
-        whButton(30, ((csw_in.garbage[3] & 0x0f) == 0x0A) && !((csw_in.buttons[2] & 0x20) == 0x20));
-        whButton(31, ((csw_in.garbage[3] & 0x0f) == 0x0B) && !((csw_in.buttons[2] & 0x20) == 0x20));
-        whButton(32, ((csw_in.garbage[3] & 0x0f) == 0x0C) && !((csw_in.buttons[2] & 0x20) == 0x20));
+        wheel.whButton(21, ((csw_in.garbage[3] & 0x0f) == 0x01) && !((csw_in.buttons[2] & 0x20) == 0x20));
+        wheel.whButton(22, ((csw_in.garbage[3] & 0x0f) == 0x02) && !((csw_in.buttons[2] & 0x20) == 0x20));
+        wheel.whButton(23, ((csw_in.garbage[3] & 0x0f) == 0x03) && !((csw_in.buttons[2] & 0x20) == 0x20));
+        wheel.whButton(24, ((csw_in.garbage[3] & 0x0f) == 0x04) && !((csw_in.buttons[2] & 0x20) == 0x20));
+        wheel.whButton(25, ((csw_in.garbage[3] & 0x0f) == 0x05) && !((csw_in.buttons[2] & 0x20) == 0x20));
+        wheel.whButton(26, ((csw_in.garbage[3] & 0x0f) == 0x06) && !((csw_in.buttons[2] & 0x20) == 0x20));
+        wheel.whButton(27, ((csw_in.garbage[3] & 0x0f) == 0x07) && !((csw_in.buttons[2] & 0x20) == 0x20));
+        wheel.whButton(28, ((csw_in.garbage[3] & 0x0f) == 0x08) && !((csw_in.buttons[2] & 0x20) == 0x20));
+        wheel.whButton(29, ((csw_in.garbage[3] & 0x0f) == 0x09) && !((csw_in.buttons[2] & 0x20) == 0x20));
+        wheel.whButton(30, ((csw_in.garbage[3] & 0x0f) == 0x0A) && !((csw_in.buttons[2] & 0x20) == 0x20));
+        wheel.whButton(31, ((csw_in.garbage[3] & 0x0f) == 0x0B) && !((csw_in.buttons[2] & 0x20) == 0x20));
+        wheel.whButton(32, ((csw_in.garbage[3] & 0x0f) == 0x0C) && !((csw_in.buttons[2] & 0x20) == 0x20));
 
         whStick(0, 0);
     }
@@ -370,33 +367,33 @@ void csl_loop() {
     csl_out.disp = csw7segToCsl(csw_out.disp[0]);
     transferCslData(&csl_out, &csl_in, sizeof(csl_out.raw), 0x41);
     whHat(csl_in.buttons & 0x1E, true);
-    whButton(13, csl_in.buttons & 0x01); // hat button
+    wheel.whButton(13, csl_in.buttons & 0x01); // hat button
 
     // Right Line / 2st disp
     csl_out.disp = csw7segToCsl(csw_out.disp[1]);
     transferCslData(&csl_out, &csl_in, sizeof(csl_out.raw), 0x02);
-    whButton(11, csl_in.buttons & 0x01); // wrench
-    whButton(5, csl_in.buttons & 0x04);  // RT
-    whButton(14, csl_in.buttons & 0x08); // xbox
-    whButton(6, csl_in.buttons & 0x10);  // RSB
+    wheel.whButton(11, csl_in.buttons & 0x01); // wrench
+    wheel.whButton(5, csl_in.buttons & 0x04);  // RT
+    wheel.whButton(14, csl_in.buttons & 0x08); // xbox
+    wheel.whButton(6, csl_in.buttons & 0x10);  // RSB
 
     // Left cluster / 3st disp
     csl_out.disp = csw7segToCsl(csw_out.disp[2]);
     transferCslData(&csl_out, &csl_in, sizeof(csl_out.raw), 0x44);
-    whButton(15, csl_in.buttons & 0x01); // left paddle
-    whButton(9, csl_in.buttons & 0x02);  // lines
-    whButton(10, csl_in.buttons & 0x04); // squares
-    whButton(8, csl_in.buttons & 0x08);  // LSB
-    whButton(7, csl_in.buttons & 0x10);  // LT
+    wheel.whButton(15, csl_in.buttons & 0x01); // left paddle
+    wheel.whButton(9, csl_in.buttons & 0x02);  // lines
+    wheel.whButton(10, csl_in.buttons & 0x04); // squares
+    wheel.whButton(8, csl_in.buttons & 0x08);  // LSB
+    wheel.whButton(7, csl_in.buttons & 0x10);  // LT
 
     // Right cluster / RGB Led
     csl_out.disp = cswLedsToCsl(csw_out.leds);
     transferCslData(&csl_out, &csl_in, sizeof(csl_out.raw), 0x08);
-    whButton(16, csl_in.buttons & 0x01); // right paddle
-    whButton(1, csl_in.buttons & 0x02);  // B
-    whButton(2, csl_in.buttons & 0x04);  // A
-    whButton(3, csl_in.buttons & 0x08);  // Y
-    whButton(4, csl_in.buttons & 0x10);  // X
+    wheel.whButton(16, csl_in.buttons & 0x01); // right paddle
+    wheel.whButton(1, csl_in.buttons & 0x02);  // B
+    wheel.whButton(2, csl_in.buttons & 0x04);  // A
+    wheel.whButton(3, csl_in.buttons & 0x08);  // Y
+    wheel.whButton(4, csl_in.buttons & 0x10);  // X
 
     whStick(0, 0);
 }
@@ -413,82 +410,82 @@ void mcl_loop() {
     whHat(mcl_in.buttons[0] & 0x0f, false);
 
     // All buttons
-    whButton(1, mcl_in.buttons[0] & 0x80); // Y
-    whButton(2, mcl_in.buttons[0] & 0x40); // B
-    whButton(3, mcl_in.buttons[0] & 0x20); // X
-    whButton(4, mcl_in.buttons[0] & 0x10); // A
-    whButton(5, mcl_in.buttons[1] & 0x80); // P
-    whButton(6, mcl_in.buttons[1] & 0x40); // N
-    whButton(7, mcl_in.buttons[1] & 0x20); // LSB
+    wheel.whButton(1, mcl_in.buttons[0] & 0x80); // Y
+    wheel.whButton(2, mcl_in.buttons[0] & 0x40); // B
+    wheel.whButton(3, mcl_in.buttons[0] & 0x20); // X
+    wheel.whButton(4, mcl_in.buttons[0] & 0x10); // A
+    wheel.whButton(5, mcl_in.buttons[1] & 0x80); // P
+    wheel.whButton(6, mcl_in.buttons[1] & 0x40); // N
+    wheel.whButton(7, mcl_in.buttons[1] & 0x20); // LSB
 
-    whButton(9, mcl_in.buttons[1] & 0x04); // RSB
+    wheel.whButton(9, mcl_in.buttons[1] & 0x04); // RSB
 
-    whButton(8, (mcl_in.buttons[1] & 0x10) && ((mcl_in.garbage[3] & 0xF0) == 0x10));  // switch left up
-    whButton(19, (mcl_in.buttons[2] & 0x80) && ((mcl_in.garbage[3] & 0xF0) == 0x10)); // switch left down
-    whButton(10, (mcl_in.buttons[1] & 0x02) && ((mcl_in.garbage[3] & 0xF0) == 0x10)); // switch right up
-    whButton(20, (mcl_in.buttons[2] & 0x40) && ((mcl_in.garbage[3] & 0xF0) == 0x10)); // switch right down
+    wheel.whButton(8, (mcl_in.buttons[1] & 0x10) && ((mcl_in.garbage[3] & 0xF0) == 0x10));  // switch left up
+    wheel.whButton(19, (mcl_in.buttons[2] & 0x80) && ((mcl_in.garbage[3] & 0xF0) == 0x10)); // switch left down
+    wheel.whButton(10, (mcl_in.buttons[1] & 0x02) && ((mcl_in.garbage[3] & 0xF0) == 0x10)); // switch right up
+    wheel.whButton(20, (mcl_in.buttons[2] & 0x40) && ((mcl_in.garbage[3] & 0xF0) == 0x10)); // switch right down
 
-    whButton(33, (mcl_in.buttons[1] & 0x10) && ((mcl_in.garbage[3] & 0xF0) == 0x20)); // switch left up
-    whButton(34, (mcl_in.buttons[2] & 0x80) && ((mcl_in.garbage[3] & 0xF0) == 0x20)); // switch left down
-    whButton(35, (mcl_in.buttons[1] & 0x02) && ((mcl_in.garbage[3] & 0xF0) == 0x20)); // switch right up
-    whButton(36, (mcl_in.buttons[2] & 0x40) && ((mcl_in.garbage[3] & 0xF0) == 0x20)); // switch right down
+    wheel.whButton(33, (mcl_in.buttons[1] & 0x10) && ((mcl_in.garbage[3] & 0xF0) == 0x20)); // switch left up
+    wheel.whButton(34, (mcl_in.buttons[2] & 0x80) && ((mcl_in.garbage[3] & 0xF0) == 0x20)); // switch left down
+    wheel.whButton(35, (mcl_in.buttons[1] & 0x02) && ((mcl_in.garbage[3] & 0xF0) == 0x20)); // switch right up
+    wheel.whButton(36, (mcl_in.buttons[2] & 0x40) && ((mcl_in.garbage[3] & 0xF0) == 0x20)); // switch right down
 
-    whButton(37, (mcl_in.buttons[1] & 0x10) && ((mcl_in.garbage[3] & 0xF0) == 0x30)); // switch left up
-    whButton(38, (mcl_in.buttons[2] & 0x80) && ((mcl_in.garbage[3] & 0xF0) == 0x30)); // switch left down
-    whButton(39, (mcl_in.buttons[1] & 0x02) && ((mcl_in.garbage[3] & 0xF0) == 0x30)); // switch right up
-    whButton(40, (mcl_in.buttons[2] & 0x40) && ((mcl_in.garbage[3] & 0xF0) == 0x30)); // switch right down
+    wheel.whButton(37, (mcl_in.buttons[1] & 0x10) && ((mcl_in.garbage[3] & 0xF0) == 0x30)); // switch left up
+    wheel.whButton(38, (mcl_in.buttons[2] & 0x80) && ((mcl_in.garbage[3] & 0xF0) == 0x30)); // switch left down
+    wheel.whButton(39, (mcl_in.buttons[1] & 0x02) && ((mcl_in.garbage[3] & 0xF0) == 0x30)); // switch right up
+    wheel.whButton(40, (mcl_in.buttons[2] & 0x40) && ((mcl_in.garbage[3] & 0xF0) == 0x30)); // switch right down
 
-    whButton(41, (mcl_in.buttons[1] & 0x10) && ((mcl_in.garbage[3] & 0xF0) == 0x40)); // switch left up
-    whButton(42, (mcl_in.buttons[2] & 0x80) && ((mcl_in.garbage[3] & 0xF0) == 0x40)); // switch left down
-    whButton(43, (mcl_in.buttons[1] & 0x02) && ((mcl_in.garbage[3] & 0xF0) == 0x40)); // switch right up
-    whButton(44, (mcl_in.buttons[2] & 0x40) && ((mcl_in.garbage[3] & 0xF0) == 0x40)); // switch right down
+    wheel.whButton(41, (mcl_in.buttons[1] & 0x10) && ((mcl_in.garbage[3] & 0xF0) == 0x40)); // switch left up
+    wheel.whButton(42, (mcl_in.buttons[2] & 0x80) && ((mcl_in.garbage[3] & 0xF0) == 0x40)); // switch left down
+    wheel.whButton(43, (mcl_in.buttons[1] & 0x02) && ((mcl_in.garbage[3] & 0xF0) == 0x40)); // switch right up
+    wheel.whButton(44, (mcl_in.buttons[2] & 0x40) && ((mcl_in.garbage[3] & 0xF0) == 0x40)); // switch right down
 
-    whButton(45, (mcl_in.buttons[1] & 0x10) && ((mcl_in.garbage[3] & 0xF0) == 0x50)); // switch left up
-    whButton(46, (mcl_in.buttons[2] & 0x80) && ((mcl_in.garbage[3] & 0xF0) == 0x50)); // switch left down
-    whButton(47, (mcl_in.buttons[1] & 0x02) && ((mcl_in.garbage[3] & 0xF0) == 0x50)); // switch right up
-    whButton(48, (mcl_in.buttons[2] & 0x40) && ((mcl_in.garbage[3] & 0xF0) == 0x50)); // switch right down
+    wheel.whButton(45, (mcl_in.buttons[1] & 0x10) && ((mcl_in.garbage[3] & 0xF0) == 0x50)); // switch left up
+    wheel.whButton(46, (mcl_in.buttons[2] & 0x80) && ((mcl_in.garbage[3] & 0xF0) == 0x50)); // switch left down
+    wheel.whButton(47, (mcl_in.buttons[1] & 0x02) && ((mcl_in.garbage[3] & 0xF0) == 0x50)); // switch right up
+    wheel.whButton(48, (mcl_in.buttons[2] & 0x40) && ((mcl_in.garbage[3] & 0xF0) == 0x50)); // switch right down
 
-    whButton(49, (mcl_in.buttons[1] & 0x10) && ((mcl_in.garbage[3] & 0xF0) == 0x60)); // switch left up
-    whButton(50, (mcl_in.buttons[2] & 0x80) && ((mcl_in.garbage[3] & 0xF0) == 0x60)); // switch left down
-    whButton(51, (mcl_in.buttons[1] & 0x02) && ((mcl_in.garbage[3] & 0xF0) == 0x60)); // switch right up
-    whButton(52, (mcl_in.buttons[2] & 0x40) && ((mcl_in.garbage[3] & 0xF0) == 0x60)); // switch right down
+    wheel.whButton(49, (mcl_in.buttons[1] & 0x10) && ((mcl_in.garbage[3] & 0xF0) == 0x60)); // switch left up
+    wheel.whButton(50, (mcl_in.buttons[2] & 0x80) && ((mcl_in.garbage[3] & 0xF0) == 0x60)); // switch left down
+    wheel.whButton(51, (mcl_in.buttons[1] & 0x02) && ((mcl_in.garbage[3] & 0xF0) == 0x60)); // switch right up
+    wheel.whButton(52, (mcl_in.buttons[2] & 0x40) && ((mcl_in.garbage[3] & 0xF0) == 0x60)); // switch right down
 
-    whButton(53, (mcl_in.buttons[1] & 0x10) && ((mcl_in.garbage[3] & 0xF0) == 0x70)); // switch left up
-    whButton(54, (mcl_in.buttons[2] & 0x80) && ((mcl_in.garbage[3] & 0xF0) == 0x70)); // switch left down
-    whButton(55, (mcl_in.buttons[1] & 0x02) && ((mcl_in.garbage[3] & 0xF0) == 0x70)); // switch right up
-    whButton(56, (mcl_in.buttons[2] & 0x40) && ((mcl_in.garbage[3] & 0xF0) == 0x70)); // switch right down
+    wheel.whButton(53, (mcl_in.buttons[1] & 0x10) && ((mcl_in.garbage[3] & 0xF0) == 0x70)); // switch left up
+    wheel.whButton(54, (mcl_in.buttons[2] & 0x80) && ((mcl_in.garbage[3] & 0xF0) == 0x70)); // switch left down
+    wheel.whButton(55, (mcl_in.buttons[1] & 0x02) && ((mcl_in.garbage[3] & 0xF0) == 0x70)); // switch right up
+    wheel.whButton(56, (mcl_in.buttons[2] & 0x40) && ((mcl_in.garbage[3] & 0xF0) == 0x70)); // switch right down
 
-    whButton(57, (mcl_in.buttons[1] & 0x10) && ((mcl_in.garbage[3] & 0xF0) == 0x80)); // switch left up
-    whButton(58, (mcl_in.buttons[2] & 0x80) && ((mcl_in.garbage[3] & 0xF0) == 0x80)); // switch left down
-    whButton(59, (mcl_in.buttons[1] & 0x02) && ((mcl_in.garbage[3] & 0xF0) == 0x80)); // switch right up
-    whButton(60, (mcl_in.buttons[2] & 0x40) && ((mcl_in.garbage[3] & 0xF0) == 0x80)); // switch right down
+    wheel.whButton(57, (mcl_in.buttons[1] & 0x10) && ((mcl_in.garbage[3] & 0xF0) == 0x80)); // switch left up
+    wheel.whButton(58, (mcl_in.buttons[2] & 0x80) && ((mcl_in.garbage[3] & 0xF0) == 0x80)); // switch left down
+    wheel.whButton(59, (mcl_in.buttons[1] & 0x02) && ((mcl_in.garbage[3] & 0xF0) == 0x80)); // switch right up
+    wheel.whButton(60, (mcl_in.buttons[2] & 0x40) && ((mcl_in.garbage[3] & 0xF0) == 0x80)); // switch right down
 
-    whButton(61, (mcl_in.buttons[1] & 0x10) && ((mcl_in.garbage[3] & 0xF0) == 0x90)); // switch left up
-    whButton(62, (mcl_in.buttons[2] & 0x80) && ((mcl_in.garbage[3] & 0xF0) == 0x90)); // switch left down
-    whButton(63, (mcl_in.buttons[1] & 0x02) && ((mcl_in.garbage[3] & 0xF0) == 0x90)); // switch right up
-    whButton(64, (mcl_in.buttons[2] & 0x40) && ((mcl_in.garbage[3] & 0xF0) == 0x90)); // switch right down
+    wheel.whButton(61, (mcl_in.buttons[1] & 0x10) && ((mcl_in.garbage[3] & 0xF0) == 0x90)); // switch left up
+    wheel.whButton(62, (mcl_in.buttons[2] & 0x80) && ((mcl_in.garbage[3] & 0xF0) == 0x90)); // switch left down
+    wheel.whButton(63, (mcl_in.buttons[1] & 0x02) && ((mcl_in.garbage[3] & 0xF0) == 0x90)); // switch right up
+    wheel.whButton(64, (mcl_in.buttons[2] & 0x40) && ((mcl_in.garbage[3] & 0xF0) == 0x90)); // switch right down
 
-    whButton(65, (mcl_in.buttons[1] & 0x10) && ((mcl_in.garbage[3] & 0xF0) == 0xA0)); // switch left up
-    whButton(66, (mcl_in.buttons[2] & 0x80) && ((mcl_in.garbage[3] & 0xF0) == 0xA0)); // switch left down
-    whButton(67, (mcl_in.buttons[1] & 0x02) && ((mcl_in.garbage[3] & 0xF0) == 0xA0)); // switch right up
-    whButton(68, (mcl_in.buttons[2] & 0x40) && ((mcl_in.garbage[3] & 0xF0) == 0xA0)); // switch right down
+    wheel.whButton(65, (mcl_in.buttons[1] & 0x10) && ((mcl_in.garbage[3] & 0xF0) == 0xA0)); // switch left up
+    wheel.whButton(66, (mcl_in.buttons[2] & 0x80) && ((mcl_in.garbage[3] & 0xF0) == 0xA0)); // switch left down
+    wheel.whButton(67, (mcl_in.buttons[1] & 0x02) && ((mcl_in.garbage[3] & 0xF0) == 0xA0)); // switch right up
+    wheel.whButton(68, (mcl_in.buttons[2] & 0x40) && ((mcl_in.garbage[3] & 0xF0) == 0xA0)); // switch right down
 
-    whButton(69, (mcl_in.buttons[1] & 0x10) && ((mcl_in.garbage[3] & 0xF0) == 0xB0)); // switch left up
-    whButton(70, (mcl_in.buttons[2] & 0x80) && ((mcl_in.garbage[3] & 0xF0) == 0xB0)); // switch left down
-    whButton(71, (mcl_in.buttons[1] & 0x02) && ((mcl_in.garbage[3] & 0xF0) == 0xB0)); // switch right up
-    whButton(72, (mcl_in.buttons[2] & 0x40) && ((mcl_in.garbage[3] & 0xF0) == 0xB0)); // switch right down
+    wheel.whButton(69, (mcl_in.buttons[1] & 0x10) && ((mcl_in.garbage[3] & 0xF0) == 0xB0)); // switch left up
+    wheel.whButton(70, (mcl_in.buttons[2] & 0x80) && ((mcl_in.garbage[3] & 0xF0) == 0xB0)); // switch left down
+    wheel.whButton(71, (mcl_in.buttons[1] & 0x02) && ((mcl_in.garbage[3] & 0xF0) == 0xB0)); // switch right up
+    wheel.whButton(72, (mcl_in.buttons[2] & 0x40) && ((mcl_in.garbage[3] & 0xF0) == 0xB0)); // switch right down
 
-    whButton(73, (mcl_in.buttons[1] & 0x10) && ((mcl_in.garbage[3] & 0xF0) == 0xC0)); // switch left up
-    whButton(74, (mcl_in.buttons[2] & 0x80) && ((mcl_in.garbage[3] & 0xF0) == 0xC0)); // switch left down
-    whButton(75, (mcl_in.buttons[1] & 0x02) && ((mcl_in.garbage[3] & 0xF0) == 0xC0)); // switch right up
-    whButton(76, (mcl_in.buttons[2] & 0x40) && ((mcl_in.garbage[3] & 0xF0) == 0xC0)); // switch right down
+    wheel.whButton(73, (mcl_in.buttons[1] & 0x10) && ((mcl_in.garbage[3] & 0xF0) == 0xC0)); // switch left up
+    wheel.whButton(74, (mcl_in.buttons[2] & 0x80) && ((mcl_in.garbage[3] & 0xF0) == 0xC0)); // switch left down
+    wheel.whButton(75, (mcl_in.buttons[1] & 0x02) && ((mcl_in.garbage[3] & 0xF0) == 0xC0)); // switch right up
+    wheel.whButton(76, (mcl_in.buttons[2] & 0x40) && ((mcl_in.garbage[3] & 0xF0) == 0xC0)); // switch right down
 
-    whButton(12, mcl_in.buttons[2] & 0x04); // hat button
-    whButton(14, mcl_in.buttons[2] & 0x02); // xbox
+    wheel.whButton(12, mcl_in.buttons[2] & 0x04); // hat button
+    wheel.whButton(14, mcl_in.buttons[2] & 0x02); // xbox
 
     // paddles shitfer
-    whButton(15, mcl_in.buttons[1] & 0x08); // left
-    whButton(16, mcl_in.buttons[1] & 0x01); // right
+    wheel.whButton(15, mcl_in.buttons[1] & 0x08); // left
+    wheel.whButton(16, mcl_in.buttons[1] & 0x01); // right
 
     rotary_value = mcl_in.encoder;
 
@@ -496,8 +493,8 @@ void mcl_loop() {
     {
         clutch_max = constrain(clutch_max + rotary_value, 0, 0xFF);
     } else {
-        whButton(17, rotary_value <= -1); // left
-        whButton(18, rotary_value >= 1);  // right
+        wheel.whButton(17, rotary_value <= -1); // left
+        wheel.whButton(18, rotary_value >= 1);  // right
     }
 
     // clutch paddle
@@ -514,20 +511,20 @@ void mcl_loop() {
             whDoubleAxis(~mcl_in.axisX, ~mcl_in.axisY);
     }
 
-    //whButton(11, mcl_in.buttons[2] & 0x20); // display button
+    //wheel.whButton(11, mcl_in.buttons[2] & 0x20); // display button
 
-    whButton(21, ((mcl_in.garbage[3] & 0x0f) == 0x01) && !((mcl_in.buttons[2] & 0x20) == 0x20));
-    whButton(22, ((mcl_in.garbage[3] & 0x0f) == 0x02) && !((mcl_in.buttons[2] & 0x20) == 0x20));
-    whButton(23, ((mcl_in.garbage[3] & 0x0f) == 0x03) && !((mcl_in.buttons[2] & 0x20) == 0x20));
-    whButton(24, ((mcl_in.garbage[3] & 0x0f) == 0x04) && !((mcl_in.buttons[2] & 0x20) == 0x20));
-    whButton(25, ((mcl_in.garbage[3] & 0x0f) == 0x05) && !((mcl_in.buttons[2] & 0x20) == 0x20));
-    whButton(26, ((mcl_in.garbage[3] & 0x0f) == 0x06) && !((mcl_in.buttons[2] & 0x20) == 0x20));
-    whButton(27, ((mcl_in.garbage[3] & 0x0f) == 0x07) && !((mcl_in.buttons[2] & 0x20) == 0x20));
-    whButton(28, ((mcl_in.garbage[3] & 0x0f) == 0x08) && !((mcl_in.buttons[2] & 0x20) == 0x20));
-    whButton(29, ((mcl_in.garbage[3] & 0x0f) == 0x09) && !((mcl_in.buttons[2] & 0x20) == 0x20));
-    whButton(30, ((mcl_in.garbage[3] & 0x0f) == 0x0A) && !((mcl_in.buttons[2] & 0x20) == 0x20));
-    whButton(31, ((mcl_in.garbage[3] & 0x0f) == 0x0B) && !((mcl_in.buttons[2] & 0x20) == 0x20));
-    whButton(32, ((mcl_in.garbage[3] & 0x0f) == 0x0C) && !((mcl_in.buttons[2] & 0x20) == 0x20));
+    wheel.whButton(21, ((mcl_in.garbage[3] & 0x0f) == 0x01) && !((mcl_in.buttons[2] & 0x20) == 0x20));
+    wheel.whButton(22, ((mcl_in.garbage[3] & 0x0f) == 0x02) && !((mcl_in.buttons[2] & 0x20) == 0x20));
+    wheel.whButton(23, ((mcl_in.garbage[3] & 0x0f) == 0x03) && !((mcl_in.buttons[2] & 0x20) == 0x20));
+    wheel.whButton(24, ((mcl_in.garbage[3] & 0x0f) == 0x04) && !((mcl_in.buttons[2] & 0x20) == 0x20));
+    wheel.whButton(25, ((mcl_in.garbage[3] & 0x0f) == 0x05) && !((mcl_in.buttons[2] & 0x20) == 0x20));
+    wheel.whButton(26, ((mcl_in.garbage[3] & 0x0f) == 0x06) && !((mcl_in.buttons[2] & 0x20) == 0x20));
+    wheel.whButton(27, ((mcl_in.garbage[3] & 0x0f) == 0x07) && !((mcl_in.buttons[2] & 0x20) == 0x20));
+    wheel.whButton(28, ((mcl_in.garbage[3] & 0x0f) == 0x08) && !((mcl_in.buttons[2] & 0x20) == 0x20));
+    wheel.whButton(29, ((mcl_in.garbage[3] & 0x0f) == 0x09) && !((mcl_in.buttons[2] & 0x20) == 0x20));
+    wheel.whButton(30, ((mcl_in.garbage[3] & 0x0f) == 0x0A) && !((mcl_in.buttons[2] & 0x20) == 0x20));
+    wheel.whButton(31, ((mcl_in.garbage[3] & 0x0f) == 0x0B) && !((mcl_in.buttons[2] & 0x20) == 0x20));
+    wheel.whButton(32, ((mcl_in.garbage[3] & 0x0f) == 0x0C) && !((mcl_in.buttons[2] & 0x20) == 0x20));
 
     whStick(0, 0);
 
@@ -557,7 +554,7 @@ void loop() {
             csw_loop();
             break;
         case CSL_WHEEL:
-            csw_loop();
+            csl_loop();
             break;
         case MCL_WHEEL:
             mcl_loop();
@@ -621,11 +618,6 @@ void loop() {
     // if(timing > 550)  Serial.println(String("timing: ") + timing);
     // some delay
     idle();
-}
-
-void whButton(uint8_t button, bool val) {
-    val = btDebncer[button].get(val);
-    Joystick.button(button, val);
 }
 
 void whStick(unsigned int x, unsigned int y) {
@@ -699,7 +691,7 @@ void whClear() {
     whHat(0, false);
     whDoubleAxis(0x00, 0x00);
     for (int i = 1; i <= 37; ++i) {
-        whButton(i, 0);
+        wheel.whButton(i, 0);
     }
     clutch_max = 0xFF;
     show_fwvers = true;
