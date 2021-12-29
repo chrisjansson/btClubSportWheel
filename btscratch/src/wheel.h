@@ -5,6 +5,9 @@
 #ifndef BTSCRATCH_WHEEL_H
 #define BTSCRATCH_WHEEL_H
 
+#include "Joystick.h"
+#include "Debouncer.h"
+#include "fanatec.h"
 
 class wheel {
 public:
@@ -81,6 +84,13 @@ public:
         }
         Joystick.hat(val);
     }
+
+    void whSetId(unsigned int val) {
+        _csw_out.id = val & 0xFF;
+        Joystick.setWheel(val);
+    }
+
+    csw_out_t _csw_out;
 
 private:
     Debouncer _hatDebouncer = Debouncer();

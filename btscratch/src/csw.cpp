@@ -51,10 +51,7 @@ void show_firmware_version();
 /* Wheel inputs */
 void whClear();
 
-void whSetId(unsigned int val);
-
 csw_in_t csw_in;
-csw_out_t csw_out;
 
 csl_in_t csl_in;
 csl_out_t csl_out;
@@ -71,7 +68,6 @@ uint8_t hid_pck[7];
 
 wheel wheel;
 
-
 byte rotary_debounce = 0;
 int8_t rotary_value = 0;
 uint8_t main_link_id = 1;
@@ -85,12 +81,12 @@ void setup() {
     whClear();
 
     // prebuild output packet
-    memset(csw_out.raw, 0, sizeof(csw_out_t));
+    memset(wheel._csw_out.raw, 0, sizeof(csw_out_t));
     memset(csl_out.raw, 0, sizeof(csl_out_t));
     memset(mcl_out.raw, 0, sizeof(mcl_out_t));
-    csw_out.header = 0xa5;
+    wheel._csw_out.header = 0xa5;
     mcl_out.header = 0xa5;
-    csw_out.id = 0x00;
+    wheel._csw_out.id = 0x00;
     setup2();
 
 // debug
@@ -117,7 +113,7 @@ void csw_loop() {
     // Read Fanatec Packet
 
     //csw_out.raw[9] = 0x0F; // xbox light
-    transferCswData(&csw_out, &csw_in, sizeof(csw_out.raw));
+    transferCswData(&wheel._csw_out, &csw_in, sizeof(wheel._csw_out.raw));
     show_firmware_version();
 
 #ifdef HAS_DEBUG
@@ -131,7 +127,7 @@ void csw_loop() {
 #endif
 
     // Wheel ID
-    whSetId(csw_in.id);
+    wheel.whSetId(csw_in.id);
 
     // Left stick
     wheel.whStick(csw_in.axisX, csw_in.axisY);
@@ -348,17 +344,17 @@ void csw_loop() {
 void csl_loop() {
     // csl stuff
     transferCslData(&csl_out, &csl_in, sizeof(csl_out.raw), 0x00);
-    whSetId(CSLP1XBOX);
+    wheel.whSetId(CSLP1XBOX);
     show_firmware_version();
 
     // Joystick / 1st disp
-    csl_out.disp = csw7segToCsl(csw_out.disp[0]);
+    csl_out.disp = csw7segToCsl(wheel._csw_out.disp[0]);
     transferCslData(&csl_out, &csl_in, sizeof(csl_out.raw), 0x41);
     wheel.whHat(csl_in.buttons & 0x1E, true);
     wheel.whButton(13, csl_in.buttons & 0x01); // hat button
 
     // Right Line / 2st disp
-    csl_out.disp = csw7segToCsl(csw_out.disp[1]);
+    csl_out.disp = csw7segToCsl(wheel._csw_out.disp[1]);
     transferCslData(&csl_out, &csl_in, sizeof(csl_out.raw), 0x02);
     wheel.whButton(11, csl_in.buttons & 0x01); // wrench
     wheel.whButton(5, csl_in.buttons & 0x04);  // RT
@@ -366,7 +362,7 @@ void csl_loop() {
     wheel.whButton(6, csl_in.buttons & 0x10);  // RSB
 
     // Left cluster / 3st disp
-    csl_out.disp = csw7segToCsl(csw_out.disp[2]);
+    csl_out.disp = csw7segToCsl(wheel._csw_out.disp[2]);
     transferCslData(&csl_out, &csl_in, sizeof(csl_out.raw), 0x44);
     wheel.whButton(15, csl_in.buttons & 0x01); // left paddle
     wheel.whButton(9, csl_in.buttons & 0x02);  // lines
@@ -375,7 +371,7 @@ void csl_loop() {
     wheel.whButton(7, csl_in.buttons & 0x10);  // LT
 
     // Right cluster / RGB Led
-    csl_out.disp = cswLedsToCsl(csw_out.leds);
+    csl_out.disp = cswLedsToCsl(wheel._csw_out.leds);
     transferCslData(&csl_out, &csl_in, sizeof(csl_out.raw), 0x08);
     wheel.whButton(16, csl_in.buttons & 0x01); // right paddle
     wheel.whButton(1, csl_in.buttons & 0x02);  // B
@@ -393,7 +389,7 @@ void mcl_loop() {
     show_firmware_version();
 
     // Wheel ID
-    whSetId(mcl_in.id);
+    wheel.whSetId(mcl_in.id);
 
     wheel.whHat(mcl_in.buttons[0] & 0x0f, false);
 
@@ -608,13 +604,8 @@ void loop() {
     idle();
 }
 
-void whSetId(unsigned int val) {
-    csw_out.id = val & 0xFF;
-    Joystick.setWheel(val);
-}
-
 void whClear() {
-    whSetId(NO_RIM);
+    wheel.whSetId(NO_RIM);
     wheel.whStick(0, 0);
     wheel.whHat(0, false);
     wheel.whDoubleAxis(0x00, 0x00);
@@ -646,38 +637,38 @@ void receive_hid_from_host(uint8_t link_id, uint16_t data_length, const uint8_t 
 #endif
         } else {
             if (csw_in.id == CSLMCLGT3) {
-                csw_out.raw[1] = 0x11;
-                csw_out.raw[2] = csw7segToAscii(data[4] & 0xff);
-                csw_out.raw[3] = csw7segToAscii(data[5] & 0xff);
-                csw_out.raw[4] = csw7segToAscii(data[6] & 0xff);
+                wheel._csw_out.raw[1] = 0x11;
+                wheel._csw_out.raw[2] = csw7segToAscii(data[4] & 0xff);
+                wheel._csw_out.raw[3] = csw7segToAscii(data[5] & 0xff);
+                wheel._csw_out.raw[4] = csw7segToAscii(data[6] & 0xff);
             } else {
-                csw_out.disp[0] = (data[4] & 0xff);
-                csw_out.disp[1] = (data[5] & 0xff);
-                csw_out.disp[2] = (data[6] & 0xff);
+                wheel._csw_out.disp[0] = (data[4] & 0xff);
+                wheel._csw_out.disp[1] = (data[5] & 0xff);
+                wheel._csw_out.disp[2] = (data[6] & 0xff);
             }
 #ifdef HAS_DEBUG
             Serial.println(
-                    String("HID display: ") + csw_out.disp[0] + ":" + csw_out.disp[1] + ":" + csw_out.disp[2]);
+                    String("HID display: ") + wheel._csw_out.disp[0] + ":" + wheel._csw_out.disp[1] + ":" + wheel._csw_out.disp[2]);
 #endif
         }
     } else if (data[2] == 0x01 && data[3] == 0x03) {
         // rumbles
-        if (csw_out.id != UNIHUB && csw_in.id != CSLMCLGT3) {
-            csw_out.rumble[0] = (data[4] & 0xff);
-            csw_out.rumble[1] = (data[5] & 0xff);
+        if (wheel._csw_out.id != UNIHUB && csw_in.id != CSLMCLGT3) {
+            wheel._csw_out.rumble[0] = (data[4] & 0xff);
+            wheel._csw_out.rumble[1] = (data[5] & 0xff);
         }
 #ifdef HAS_DEBUG
-        Serial.println(String("HID rumbles: ") + csw_out.rumble[0] + ":" + csw_out.rumble[1]);
+        Serial.println(String("HID rumbles: ") + wheel._csw_out.rumble[0] + ":" + wheel._csw_out.rumble[1]);
 #endif
     } else if (data[2] == 0x08) {
         // Rev Lights
-        if (csw_out.id != UNIHUB && csw_in.id != CSLMCLGT3) {
-            csw_out.leds = (data[3] & 0xff) << 8 | (data[4] & 0xff);
+        if (wheel._csw_out.id != UNIHUB && csw_in.id != CSLMCLGT3) {
+            wheel._csw_out.leds = (data[3] & 0xff) << 8 | (data[4] & 0xff);
             // ftx_pck[5] = (hid_pck[4] & 0xff);
             // ftx_pck[6] = (hid_pck[3] & 0xff);
         }
 #ifdef HAS_DEBUG
-        Serial.println(String("HID leds   : ") + csw_out.leds);
+        Serial.println(String("HID leds   : ") + wheel._csw_out.leds);
 #endif
     } else if (data[1] == 0x14) {
         // ??
@@ -743,38 +734,38 @@ void show_firmware_version() {
         } else {
             String fw_vers = String(csw_in.fwvers);
             if (csw_in.id == CSLMCLGT3) {
-                csw_out.raw[1] = 0x11;
+                wheel._csw_out.raw[1] = 0x11;
                 // Erase all
-                csw_out.raw[2] = 0x0A;
-                csw_out.raw[3] = 0x0A;
-                csw_out.raw[4] = 0x0A;
+                wheel._csw_out.raw[2] = 0x0A;
+                wheel._csw_out.raw[3] = 0x0A;
+                wheel._csw_out.raw[4] = 0x0A;
                 //
-                csw_out.raw[2] = fw_vers.charAt(0);
+                wheel._csw_out.raw[2] = fw_vers.charAt(0);
                 if (fw_vers.length() > 1)
-                    csw_out.raw[3] = fw_vers.charAt(1);
+                    wheel._csw_out.raw[3] = fw_vers.charAt(1);
                 if (fw_vers.length() > 2)
-                    csw_out.raw[4] = fw_vers.charAt(2);
+                    wheel._csw_out.raw[4] = fw_vers.charAt(2);
             } else {
                 String fw_vers = String(csw_in.fwvers);
 
-                csw_out.disp[0] = 0;
-                csw_out.disp[1] = 0;
-                csw_out.disp[2] = 0;
+                wheel._csw_out.disp[0] = 0;
+                wheel._csw_out.disp[1] = 0;
+                wheel._csw_out.disp[2] = 0;
 
-                csw_out.disp[0] = csw_ascii_to_7seg(fw_vers.charAt(0));
+                wheel._csw_out.disp[0] = csw_ascii_to_7seg(fw_vers.charAt(0));
                 if (fw_vers.length() > 1)
-                    csw_out.disp[1] = csw_ascii_to_7seg(fw_vers.charAt(1));
+                    wheel._csw_out.disp[1] = csw_ascii_to_7seg(fw_vers.charAt(1));
                 if (fw_vers.length() > 2)
-                    csw_out.disp[2] = csw_ascii_to_7seg(fw_vers.charAt(2));
+                    wheel._csw_out.disp[2] = csw_ascii_to_7seg(fw_vers.charAt(2));
             }
         }
         fwShownForDuration = millis();
     } else if (millis() - fwShownForDuration >= 4000) {
         show_fwvers = false;
         if (detectWheelType() == CSW_WHEEL) {
-            csw_out.disp[0] = 0;
-            csw_out.disp[1] = 0;
-            csw_out.disp[2] = 0;
+            wheel._csw_out.disp[0] = 0;
+            wheel._csw_out.disp[1] = 0;
+            wheel._csw_out.disp[2] = 0;
         } else {
             mcl_out.raw[1] = 0x11;
             mcl_out.raw[2] = 0x0A;
@@ -782,10 +773,10 @@ void show_firmware_version() {
             mcl_out.raw[4] = 0x0A;
             mcl_out.raw[9] = 0x00;
             if (csw_in.id == CSLMCLGT3) {
-                csw_out.raw[1] = 0x11;
-                csw_out.raw[2] = 0x0A;
-                csw_out.raw[3] = 0x0A;
-                csw_out.raw[4] = 0x0A;
+                wheel._csw_out.raw[1] = 0x11;
+                wheel._csw_out.raw[2] = 0x0A;
+                wheel._csw_out.raw[3] = 0x0A;
+                wheel._csw_out.raw[4] = 0x0A;
             }
         }
     }
