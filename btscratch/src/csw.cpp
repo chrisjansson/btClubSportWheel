@@ -186,9 +186,6 @@ void loop() {
     }
 #endif
 
-
-#ifndef IS_USB
-#endif
     // timing = micros() - timing;
     // if(timing > 550)  Serial.println(String("timing: ") + timing);
     // some delay
@@ -198,9 +195,6 @@ void loop() {
 void whClear() {
     wheel->clear();
 }
-
-
-
 
 void idle() {
 #ifndef IS_USB
