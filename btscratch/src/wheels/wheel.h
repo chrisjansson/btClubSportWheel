@@ -210,8 +210,6 @@ public:
         }
     }
 
-    csw_out_t _csw_out;
-
 private:
     Debouncer _hatDebouncer = Debouncer();
     Debouncer *_buttonDebouncers = new Debouncer[89];

@@ -9,6 +9,12 @@
 #include "../fanatec.h"
 
 class csw_wheel : public wheel {
+public:
+    csw_wheel() {
+        _csw_out.header = 0xa5;
+        _csw_out.id = 0x00;
+    }
+
     void transferData() override {
         // csw stuff
         // Read Fanatec Packet
@@ -293,6 +299,7 @@ class csw_wheel : public wheel {
 
     uint8_t clutch_max = 0xFF;
     csw_in_t _csw_in;
+    csw_out_t _csw_out;
 
     const unsigned char seven_seg_digits_decode_gfedcba[75] = {
 /*  0     1     2     3     4     5     6     7     8     9     :     ;     */

@@ -9,6 +9,11 @@
 #include "../fanatec.h"
 
 class mcl_wheel : public wheel {
+public:
+    mcl_wheel(){
+        mcl_out.header = 0xa5;
+    }
+
     void transferData() override {
         // McLaren GT3
         transferMclData(&mcl_out, &mcl_in, sizeof(mcl_out.raw));

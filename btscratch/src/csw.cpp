@@ -49,13 +49,6 @@ void idle();
 /* Wheel inputs */
 void whClear();
 
-csw_in_t csw_in;
-
-csl_out_t csl_out;
-
-mcl_in_t mcl_in;
-mcl_out_t mcl_out;
-
 uint32_t timing;
 uint32_t usb_time;
 
@@ -68,8 +61,6 @@ wheel initial_wheel;
 
 wheel* wheel = &initial_wheel;
 
-byte rotary_debounce = 0;
-int8_t rotary_value = 0;
 uint8_t main_link_id = 1;
 
 void setup() {
@@ -78,12 +69,6 @@ void setup() {
     whClear();
 
     // prebuild output packet
-    memset(wheel->_csw_out.raw, 0, sizeof(csw_out_t));
-    memset(csl_out.raw, 0, sizeof(csl_out_t));
-    memset(mcl_out.raw, 0, sizeof(mcl_out_t));
-    wheel->_csw_out.header = 0xa5;
-    mcl_out.header = 0xa5;
-    wheel->_csw_out.id = 0x00;
     setup2();
 
 // debug

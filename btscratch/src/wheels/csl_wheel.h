@@ -9,6 +9,12 @@
 #include "../fanatec.h"
 
 class csl_wheel : public wheel {
+public:
+    csl_wheel() {
+        _csw_out.header = 0xa5;
+        _csw_out.id = 0x00;
+    }
+
     void transferData() override {
     }
 
@@ -54,6 +60,7 @@ class csl_wheel : public wheel {
 
     csl_in_t csl_in;
     csl_out_t csl_out;
+    csw_out_t _csw_out;
 };
 
 
