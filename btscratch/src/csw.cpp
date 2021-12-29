@@ -33,8 +33,6 @@
 #define MAX_SPEED 5000
 
 uint8_t hid_data[35];
-uint32_t max_delay = 150000; // overhead if below 120ms
-// 400 is too short with fanaleds
 
 bool in_changed;
 
@@ -46,7 +44,6 @@ void loop();
 
 void idle();
 
-/* Wheel inputs */
 void whClear();
 
 uint32_t timing;
