@@ -86,7 +86,6 @@ public:
     }
 
     void setId(unsigned int val) {
-        _csw_out.id = val & 0xFF;
         Joystick.setWheel(val);
     }
 

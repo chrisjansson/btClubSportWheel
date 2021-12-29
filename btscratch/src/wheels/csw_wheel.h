@@ -29,6 +29,7 @@ class csw_wheel : public wheel {
 
         // Wheel ID
         setId(_csw_in.id);
+        _csw_out.id = _csw_in.id & 0xFF;
 
         // Left stick
         stick(_csw_in.axisX, _csw_in.axisY);

@@ -10,10 +10,11 @@
 
 class csl_wheel : public wheel {
     void transferData() override {
-        transferCslData(&csl_out, &csl_in, sizeof(csl_out.raw), 0x00);
     }
 
     void process() override {
+        transferCslData(&csl_out, &csl_in, sizeof(csl_out.raw), 0x00);
+
         setId(CSLP1XBOX);
 
         // Joystick / 1st disp
