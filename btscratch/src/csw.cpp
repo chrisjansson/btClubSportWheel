@@ -46,8 +46,6 @@ void loop();
 
 void idle();
 
-void show_firmware_version();
-
 /* Wheel inputs */
 void whClear();
 
@@ -58,9 +56,7 @@ csl_out_t csl_out;
 mcl_in_t mcl_in;
 mcl_out_t mcl_out;
 
-bool show_fwvers;
 uint32_t timing;
-uint32_t fwShownForDuration;
 uint32_t usb_time;
 
 uint8_t hid_pck[7];
@@ -123,19 +119,19 @@ void loop() {
         case CSW_WHEEL:
             wheel = &csw_wheel;
             wheel->transferData();
-            show_firmware_version();
+            wheel->show_firmware_version();
             wheel->process();
             break;
         case CSL_WHEEL:
             wheel = &csl_wheel;
             wheel->transferData();
-            show_firmware_version();
+            wheel->show_firmware_version();
             wheel->process();
             break;
         case MCL_WHEEL:
             wheel = &mcl_wheel;
             wheel->transferData();
-            show_firmware_version();
+            wheel->show_firmware_version();
             wheel->process();
             break;
         default:
@@ -201,8 +197,6 @@ void loop() {
 
 void whClear() {
     wheel->clear();
-    show_fwvers = true;
-    fwShownForDuration = 0;
 }
 
 const unsigned char seven_seg_digits_decode_gfedcba[75] = {
@@ -228,77 +222,6 @@ int csw_ascii_to_7seg(char c) {
     return seven_seg_digits_decode_gfedcba[c - '0'];
 }
 
-void show_firmware_version() {
-    if (!show_fwvers)
-        return;
-//
-//    bool isFirstLoop = fwShownForDuration == 0;
-//    if (isFirstLoop) {
-//        Serial.println("Init wheel");
-//        // start showing fw vers
-//        if (detectWheelType() == MCL_WHEEL) {
-//            String fw_vers = String(mcl_in.fwvers);
-//            mcl_out.raw[1] = 0x11;
-//            // Erase all
-//            mcl_out.raw[2] = 0x0A;
-//            mcl_out.raw[3] = 0x0A;
-//            mcl_out.raw[4] = 0x0A;
-//            //
-//            mcl_out.raw[2] = fw_vers.charAt(0);
-//            if (fw_vers.length() > 1)
-//                mcl_out.raw[3] = fw_vers.charAt(1);
-//            if (fw_vers.length() > 2)
-//                mcl_out.raw[4] = fw_vers.charAt(2);
-//        } else {
-//            String fw_vers = String(csw_in.fwvers);
-//            if (csw_in.id == CSLMCLGT3) {
-//                wheel._csw_out.raw[1] = 0x11;
-//                // Erase all
-//                wheel._csw_out.raw[2] = 0x0A;
-//                wheel._csw_out.raw[3] = 0x0A;
-//                wheel._csw_out.raw[4] = 0x0A;
-//                //
-//                wheel._csw_out.raw[2] = fw_vers.charAt(0);
-//                if (fw_vers.length() > 1)
-//                    wheel._csw_out.raw[3] = fw_vers.charAt(1);
-//                if (fw_vers.length() > 2)
-//                    wheel._csw_out.raw[4] = fw_vers.charAt(2);
-//            } else {
-//                String fw_vers = String(csw_in.fwvers);
-//
-//                wheel._csw_out.disp[0] = 0;
-//                wheel._csw_out.disp[1] = 0;
-//                wheel._csw_out.disp[2] = 0;
-//
-//                wheel._csw_out.disp[0] = csw_ascii_to_7seg(fw_vers.charAt(0));
-//                if (fw_vers.length() > 1)
-//                    wheel._csw_out.disp[1] = csw_ascii_to_7seg(fw_vers.charAt(1));
-//                if (fw_vers.length() > 2)
-//                    wheel._csw_out.disp[2] = csw_ascii_to_7seg(fw_vers.charAt(2));
-//            }
-//        }
-//        fwShownForDuration = millis();
-//    } else if (millis() - fwShownForDuration >= 4000) {
-//        show_fwvers = false;
-//        if (detectWheelType() == CSW_WHEEL) {
-//            wheel._csw_out.disp[0] = 0;
-//            wheel._csw_out.disp[1] = 0;
-//            wheel._csw_out.disp[2] = 0;
-//        } else {
-//            mcl_out.raw[1] = 0x11;
-//            mcl_out.raw[2] = 0x0A;
-//            mcl_out.raw[3] = 0x0A;
-//            mcl_out.raw[4] = 0x0A;
-//            mcl_out.raw[9] = 0x00;
-//            if (csw_in.id == CSLMCLGT3) {
-//                wheel._csw_out.raw[1] = 0x11;
-//                wheel._csw_out.raw[2] = 0x0A;
-//                wheel._csw_out.raw[3] = 0x0A;
-//                wheel._csw_out.raw[4] = 0x0A;
-//            }
-//        }
-//    }
-}
 
 void idle() {
 #ifndef IS_USB

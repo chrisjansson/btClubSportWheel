@@ -95,10 +95,12 @@ public:
         stick(0, 0);
         hat(0, false);
         doubleAxis(0x00, 0x00);
-        //TODO: 37 looks supect, there are 89 debouncers
+        //TODO: 37 looks suspect, there are 89 debouncers
         for (int i = 1; i <= 37; ++i) {
             button(i, 0);
         }
+        show_fwvers = true;
+        fwShownForDuration = 0;
         clearBase();
     }
 
@@ -113,7 +115,6 @@ public:
     virtual void clearBase() {
 
     }
-
 
     void receive_hid_from_host(uint8_t link_id, uint16_t data_length, const uint8_t *data) {
         if (data[2] == 0x01 && data[3] == 0x02) {
@@ -185,6 +186,80 @@ public:
         millis();
     }
 
+    bool show_fwvers = true;
+    uint32_t fwShownForDuration;
+
+    void show_firmware_version() {
+        if (!show_fwvers)
+            return;
+
+        bool isFirstLoop = fwShownForDuration == 0;
+        if (isFirstLoop) {
+            Serial.println("Init wheel");
+            // start showing fw vers
+            if (detectWheelType() == MCL_WHEEL) {
+//                String fw_vers = String(mcl_in.fwvers);
+//                mcl_out.raw[1] = 0x11;
+//                // Erase all
+//                mcl_out.raw[2] = 0x0A;
+//                mcl_out.raw[3] = 0x0A;
+//                mcl_out.raw[4] = 0x0A;
+//                //
+//                mcl_out.raw[2] = fw_vers.charAt(0);
+//                if (fw_vers.length() > 1)
+//                    mcl_out.raw[3] = fw_vers.charAt(1);
+//                if (fw_vers.length() > 2)
+//                    mcl_out.raw[4] = fw_vers.charAt(2);
+            } else {
+//                if (csw_in.id == CSLMCLGT3) {
+//                    String fw_vers = String(csw_in.fwvers);
+//                    wheel._csw_out.raw[1] = 0x11;
+//                    // Erase all
+//                    wheel._csw_out.raw[2] = 0x0A;
+//                    wheel._csw_out.raw[3] = 0x0A;
+//                    wheel._csw_out.raw[4] = 0x0A;
+//                    //
+//                    wheel._csw_out.raw[2] = fw_vers.charAt(0);
+//                    if (fw_vers.length() > 1)
+//                        wheel._csw_out.raw[3] = fw_vers.charAt(1);
+//                    if (fw_vers.length() > 2)
+//                        wheel._csw_out.raw[4] = fw_vers.charAt(2);
+//                } else {
+//                    String fw_vers = String(csw_in.fwvers);
+//
+//                    wheel._csw_out.disp[0] = 0;
+//                    wheel._csw_out.disp[1] = 0;
+//                    wheel._csw_out.disp[2] = 0;
+//
+//                    wheel._csw_out.disp[0] = csw_ascii_to_7seg(fw_vers.charAt(0));
+//                    if (fw_vers.length() > 1)
+//                        wheel._csw_out.disp[1] = csw_ascii_to_7seg(fw_vers.charAt(1));
+//                    if (fw_vers.length() > 2)
+//                        wheel._csw_out.disp[2] = csw_ascii_to_7seg(fw_vers.charAt(2));
+//                }
+            }
+            fwShownForDuration = millis();
+        } else if (millis() - fwShownForDuration >= 4000) {
+            show_fwvers = false;
+            if (detectWheelType() == CSW_WHEEL) {
+                _csw_out.disp[0] = 0;
+                _csw_out.disp[1] = 0;
+                _csw_out.disp[2] = 0;
+            } else {
+//                mcl_out.raw[1] = 0x11;
+//                mcl_out.raw[2] = 0x0A;
+//                mcl_out.raw[3] = 0x0A;
+//                mcl_out.raw[4] = 0x0A;
+//                mcl_out.raw[9] = 0x00;
+//                if (csw_in.id == CSLMCLGT3) {
+//                    _csw_out.raw[1] = 0x11;
+//                    _csw_out.raw[2] = 0x0A;
+//                    _csw_out.raw[3] = 0x0A;
+//                    _csw_out.raw[4] = 0x0A;
+//                }
+            }
+        }
+    }
 
     csw_out_t _csw_out;
 
