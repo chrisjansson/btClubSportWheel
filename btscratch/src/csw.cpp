@@ -30,7 +30,7 @@
 #include "Joystick.h"
 #include "wheels/wheel.h"
 
-#define MAX_SPEED 5000
+#define MAX_SPEED 50000
 
 uint8_t hid_data[35];
 
