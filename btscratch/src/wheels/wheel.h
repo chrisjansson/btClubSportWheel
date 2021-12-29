@@ -114,6 +114,78 @@ public:
 
     }
 
+
+    void receive_hid_from_host(uint8_t link_id, uint16_t data_length, const uint8_t *data) {
+        if (data[2] == 0x01 && data[3] == 0x02) {
+            // 7 seg
+            if (detectWheelType() == MCL_WHEEL) {
+//                mcl_out.raw[1] = 0x11;
+//                mcl_out.raw[2] = csw7segToAscii(data[4] & 0xff);
+//                mcl_out.raw[3] = csw7segToAscii(data[5] & 0xff);
+//                mcl_out.raw[4] = csw7segToAscii(data[6] & 0xff);
+
+#ifdef HAS_DEBUG
+                Serial.print(String("HID display: "));
+            Serial.print(data[4], HEX);
+            Serial.print(":");
+            Serial.print(data[5], HEX);
+            Serial.print(":");
+            Serial.print(data[6], HEX);
+            Serial.println();
+#endif
+            } else {
+//                if (csw_in.id == CSLMCLGT3) {
+//                    wheel._csw_out.raw[1] = 0x11;
+//                    wheel._csw_out.raw[2] = csw7segToAscii(data[4] & 0xff);
+//                    wheel._csw_out.raw[3] = csw7segToAscii(data[5] & 0xff);
+//                    wheel._csw_out.raw[4] = csw7segToAscii(data[6] & 0xff);
+//                } else {
+//                    wheel._csw_out.disp[0] = (data[4] & 0xff);
+//                    wheel._csw_out.disp[1] = (data[5] & 0xff);
+//                    wheel._csw_out.disp[2] = (data[6] & 0xff);
+//                }
+#ifdef HAS_DEBUG
+                Serial.println(
+                    String("HID display: ") + wheel._csw_out.disp[0] + ":" + wheel._csw_out.disp[1] + ":" + wheel._csw_out.disp[2]);
+#endif
+            }
+        } else if (data[2] == 0x01 && data[3] == 0x03) {
+            // rumbles
+//            if (wheel._csw_out.id != UNIHUB && csw_in.id != CSLMCLGT3) {
+//                wheel._csw_out.rumble[0] = (data[4] & 0xff);
+//                wheel._csw_out.rumble[1] = (data[5] & 0xff);
+//            }
+#ifdef HAS_DEBUG
+            Serial.println(String("HID rumbles: ") + wheel._csw_out.rumble[0] + ":" + wheel._csw_out.rumble[1]);
+#endif
+        } else if (data[2] == 0x08) {
+            // Rev Lights
+//            if (wheel._csw_out.id != UNIHUB && csw_in.id != CSLMCLGT3) {
+//                wheel._csw_out.leds = (data[3] & 0xff) << 8 | (data[4] & 0xff);
+//                // ftx_pck[5] = (hid_pck[4] & 0xff);
+//                // ftx_pck[6] = (hid_pck[3] & 0xff);
+//            }
+#ifdef HAS_DEBUG
+            Serial.println(String("HID leds   : ") + wheel._csw_out.leds);
+#endif
+        } else if (data[1] == 0x14) {
+            // ??
+        } else {
+
+#ifdef HAS_DEBUG
+            Serial.print(String("[!] HID Unknown from ") + link_id + " (size:" + data_length + ") : ");
+
+        for (int i = 0; i < data_length; i++) {
+            Serial.print(data[i], HEX);
+            Serial.print(":");
+        }
+        Serial.println();
+#endif
+        }
+        millis();
+    }
+
+
     csw_out_t _csw_out;
 
 private:
