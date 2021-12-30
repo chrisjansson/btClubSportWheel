@@ -257,6 +257,13 @@ public:
         clutch_max = 0xFF;
     }
 
+    void set_rumble(uint8_t a, uint8_t b) override {
+        if (_csw_out.id != UNIHUB && _csw_in.id != CSLMCLGT3) {
+            _csw_out.rumble[0] = (a & 0xff);
+            _csw_out.rumble[1] = (b & 0xff);
+        }
+    }
+
     void clear_display() override {
         if (_csw_in.id == CSLMCLGT3) {
             _csw_out.raw[1] = 0x11;

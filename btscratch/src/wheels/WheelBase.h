@@ -115,6 +115,10 @@ public:
 
     }
 
+    virtual void set_rumble(uint8_t a, uint8_t b) {
+
+    }
+
     void receive_hid_from_host(uint8_t link_id, uint16_t data_length, const uint8_t *data) {
         if (data[2] == 0x01 && data[3] == 0x02) {
             // 7 seg
