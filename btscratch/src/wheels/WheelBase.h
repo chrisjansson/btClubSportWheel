@@ -154,11 +154,7 @@ public:
 #endif
             }
         } else if (data[2] == 0x01 && data[3] == 0x03) {
-            // rumbles
-//            if (WheelBase._csw_out.id != UNIHUB && csw_in.id != CSLMCLGT3) {
-//                WheelBase._csw_out.rumble[0] = (data[4] & 0xff);
-//                WheelBase._csw_out.rumble[1] = (data[5] & 0xff);
-//            }
+            set_rumble((data[4] & 0xff),(data[5] & 0xff));
 #ifdef HAS_DEBUG
             Serial.println(String("HID rumbles: ") + WheelBase._csw_out.rumble[0] + ":" + WheelBase._csw_out.rumble[1]);
 #endif
