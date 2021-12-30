@@ -98,8 +98,6 @@ public:
         for (int i = 1; i <= 37; ++i) {
             button(i, 0);
         }
-        show_fwvers = true;
-        fwShownForDuration = 0;
         clearBase();
     }
 
@@ -185,29 +183,12 @@ public:
         millis();
     }
 
-    bool show_fwvers = true;
-    uint32_t fwShownForDuration;
-
     virtual void clear_display() {
 
     }
 
     virtual void display_firmware_version() {
 
-    }
-
-    void show_firmware_version() {
-        if (!show_fwvers)
-            return;
-
-        bool isFirstLoop = fwShownForDuration == 0;
-        if (isFirstLoop) {
-            display_firmware_version();
-            fwShownForDuration = millis();
-        } else if (millis() - fwShownForDuration >= 4000) {
-            show_fwvers = false;
-            clear_display();
-        }
     }
 
 private:

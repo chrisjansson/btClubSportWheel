@@ -164,19 +164,16 @@ void loop3() {
         case CSW_WHEEL:
             wheel = &csw_wheel;
             wheel->transferData();
-            wheel->show_firmware_version();
             wheel->process();
             break;
         case CSL_WHEEL:
             wheel = &csl_wheel;
             wheel->transferData();
-            wheel->show_firmware_version();
             wheel->process();
             break;
         case MCL_WHEEL:
             wheel = &mcl_wheel;
             wheel->transferData();
-            wheel->show_firmware_version();
             wheel->process();
             break;
         default:
