@@ -42,8 +42,6 @@ void loop();
 
 void idle();
 
-void whClear();
-
 uint32_t timing;
 uint32_t usb_time;
 
@@ -61,12 +59,9 @@ uint8_t main_link_id = 1;
 void setup() {
     fsetup();
 
-    whClear();
-
-    // prebuild output packet
+    wheel->clear();
     setup2();
 
-// debug
 #ifdef HAS_DEBUG
 
     Serial.begin(115200);
@@ -115,7 +110,7 @@ void loop() {
             break;
         default:
             // no WheelBase  ?
-            whClear();
+            wheel->clear();
             delay(10);
     }
 
@@ -170,10 +165,6 @@ void loop() {
     // if(timing > 550)  Serial.println(String("timing: ") + timing);
     // some delay
     idle();
-}
-
-void whClear() {
-    wheel->clear();
 }
 
 void idle() {
