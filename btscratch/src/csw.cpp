@@ -52,7 +52,7 @@ mcl_wheel mcl_wheel;
 csl_wheel csl_wheel;
 WheelBase initial_wheel;
 
-WheelBase* wheel = &initial_wheel;
+WheelBase *wheel = &initial_wheel;
 
 uint8_t main_link_id = 1;
 
@@ -79,7 +79,78 @@ void setup() {
     usb_time = micros();
 }
 
+enum Fsm {
+    NOT_CONNECTED_TO_WHEEL,
+    DISPLAYING_FIRMWARE,
+    NOT_CONNECTED_TO_BT,
+    RUNNING
+};
+
+Fsm state = Fsm::NOT_CONNECTED_TO_WHEEL;
+
+uint32_t fwShownSince;
+
+void fsm_set_state_DISPLAYING_FIRMWARE() {
+    state = Fsm::DISPLAYING_FIRMWARE;
+
+    fwShownSince = millis();
+}
+
+void fsm_set_state_NOT_CONNECTED_TO_BT() {
+    state = Fsm::NOT_CONNECTED_TO_BT;
+}
+
+void run_not_connected_to_wheel() {
+    wheel_type wheelT = detectWheelType();
+    if (wheelT == NO_WHEEL) {
+        return;
+    }
+
+    switch (wheelT) {
+        case CSW_WHEEL:
+            wheel = &csw_wheel;
+            break;
+        case CSL_WHEEL:
+            wheel = &csl_wheel;
+            break;
+        case MCL_WHEEL:
+            wheel = &mcl_wheel;
+            break;
+        default:
+            break;
+    }
+
+    wheel->clear();
+    fsm_set_state_DISPLAYING_FIRMWARE();
+}
+
+void display_firmware() {
+    if (millis() - fwShownSince >= 4000) {
+        wheel->clear_display();
+        wheel->transferData();
+        fsm_set_state_NOT_CONNECTED_TO_BT();
+    } else {
+        wheel->display_firmware_version();
+        wheel->transferData();
+    }
+}
+
 void loop() {
+    switch (state) {
+        case Fsm::NOT_CONNECTED_TO_WHEEL:
+            run_not_connected_to_wheel();
+            break;
+        case Fsm::DISPLAYING_FIRMWARE:
+            display_firmware();
+            break;
+        case Fsm::NOT_CONNECTED_TO_BT:
+            break;
+        case Fsm::RUNNING:
+            break;
+    }
+}
+
+void loop3() {
 #ifdef IS_USB
     // Fetching HID packet
     uint16_t hid_size;
