@@ -14,37 +14,9 @@
 #include <Arduino.h>
 #include <bluefruit.h>
 #include "manifest.h"
-#include "joystick_report_descriptor.h"
 #include "joystick_report_builder.h"
-#include "battery_service.h"
 
 BLEHidGeneric hidService = BLEHidGeneric(1, 1, 0);
-JoystickReportBuilder joystickReportBuilder = JoystickReportBuilder();
-
-//bool hasKeyPressed = false;
-
-
-/**
- * Callback invoked when received Set LED from central.
- * Must be set previously with setKeyboardLedCallback()
- *
- * The LED bit map is as follows: (also defined by KEYBOARD_LED_* )
- *    Kana (4) | Compose (3) | ScrollLock (2) | CapsLock (1) | Numlock (0)
- */
-//void set_keyboard_led(uint16_t conn_handle, uint8_t led_bitmap)
-//{
-//    (void) conn_handle;
-//
-//    // light up Red Led if any bits is set
-//    if ( led_bitmap )
-//    {
-//        ledOn( LED_RED );
-//    }
-//    else
-//    {
-//        ledOff( LED_RED );
-//    }
-//}
 
 void setup2()
 {
@@ -62,14 +34,14 @@ void setup2()
     Serial.println("Enter the character(s) to send:");
     Serial.println();
 }
-
-int loops = 0;
-int battery = 0;
-
-//uint8_t data[3];
-uint8_t buttons[32];
-
-uint8_t button = 0;
+//
+//int loops = 0;
+//int battery = 0;
+//
+////uint8_t data[3];
+//uint8_t buttons[32];
+//
+//uint8_t button = 0;
 
 void loop2()
 {
@@ -117,19 +89,19 @@ void loop2()
 //    }
 
 //    hidService.inputReport(1, data, 3);
-
-    joystickReportBuilder.setButton(button, 1);
-    joystickReportBuilder.setHat(button % 9);
-    joystickReportBuilder.setAxisX(128);
-    joystickReportBuilder.setAxisY(128);
-    joystickReportBuilder.setClutch1(30);
-    joystickReportBuilder.setClutch2(200);
-
-    hidService.inputReport(joystickReportBuilder.getReportId(), joystickReportBuilder.getReport(), joystickReportBuilder.getReportLength());
-    delay(500);
-    joystickReportBuilder.clear();
-    button += 1;
-    button = button % 88;
+//
+//    joystickReportBuilder.setButton(button, 1);
+//    joystickReportBuilder.setHat(button % 9);
+//    joystickReportBuilder.setAxisX(128);
+//    joystickReportBuilder.setAxisY(128);
+//    joystickReportBuilder.setClutch1(30);
+//    joystickReportBuilder.setClutch2(200);
+//
+//    hidService.inputReport(joystickReportBuilder.getReportId(), joystickReportBuilder.getReport(), joystickReportBuilder.getReportLength());
+//    delay(500);
+//    joystickReportBuilder.clear();
+//    button += 1;
+//    button = button % 88;
 
 //    blebat.setBatteryLevel(button);
     //    delay(5);

@@ -4,7 +4,7 @@
 
 #include <BLEWrapper.h>
 #include "ConnectBle.h"
-
+#include "States.h"
 
 ConnectBle::ConnectBle(WheelBase *wheel) : wheel(wheel) {
 
@@ -21,7 +21,8 @@ void ConnectBle::loop(WheelFsm *fsm) {
         return;
     }
 
-
+    auto nextState = Running::create(wheel);
+    fsm->setState(nextState);
 }
 
 ConnectBle *ConnectBle::create(WheelBase *wheel) {

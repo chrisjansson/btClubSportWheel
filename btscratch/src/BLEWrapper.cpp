@@ -28,6 +28,7 @@ void BLEWrapper::setupServices() {
     // Configure and Start Device Information Service
     bledis.setManufacturer(BLEDIS_MANUFACTURER);
     bledis.setModel(BLEDIS_MODEL);
+    bledis.setSerialNum()
     bledis.begin();
 
     /* Start BLEWrapper HID

@@ -8,5 +8,6 @@
 #include "NotConnected.h"
 #include "DisplayFirmware.h"
 #include "ConnectBle.h"
+#include "Running.h"
 
 #endif //BTSCRATCH_STATES_H

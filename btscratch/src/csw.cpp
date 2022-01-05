@@ -24,17 +24,7 @@
 #include <wheels/mcl_wheel.h>
 #include <wheels/csl_wheel.h>
 #include "Arduino.h"
-
-#include "fanatec.h"
-#include "Debouncer.h"
-#include "Joystick.h"
-#include "wheels/WheelBase.h"
 #include "fsm/WheelFsm.h"
-#include "BLEWrapper.h"
-
-#define MAX_SPEED 50000
-
-uint8_t hid_data[35];
 
 class csw_wheel csw_wheel;
 class mcl_wheel mcl_wheel;
@@ -42,27 +32,9 @@ class csl_wheel csl_wheel;
 WheelBase initial_wheel;
 WheelBase *wheel = &initial_wheel;
 
-void setup();
-
 void setup2();
 
-void loop();
-
-void idle();
-
-uint32_t timing;
-uint32_t usb_time;
-
-uint8_t hid_pck[7];
-
-uint8_t main_link_id = 1;
-
 WheelFsm fsm;
-
-void fsm_set_state_RUNNING();
-
-void send_hid_report();
-
 
 void setup() {
     fsetup();
@@ -80,159 +52,8 @@ void setup() {
 
     Serial.println("check for active connection...");
 #endif
-
-    timing = micros();
-    usb_time = micros();
-}
-
-
-enum Fsm {
-    NOT_CONNECTED_TO_WHEEL,
-    DISPLAYING_FIRMWARE,
-    BT_NOT_STARTED,
-    NOT_CONNECTED_TO_BT,
-    RUNNING
-};
-
-Fsm state = Fsm::NOT_CONNECTED_TO_WHEEL;
-
-uint32_t fwShownSince;
-
-void fsm_set_state_DISPLAYING_FIRMWARE() {
-    state = Fsm::DISPLAYING_FIRMWARE;
-
-    fwShownSince = millis();
-}
-
-void fsm_set_state_BT_NOT_STARTED() {
-    state = Fsm::BT_NOT_STARTED;
-}
-
-void fsm_set_state_NOT_CONNECTED_TO_BT() {
-    state = Fsm::NOT_CONNECTED_TO_BT;
-}
-
-void fsm_set_state_RUNNING() {
-    state = Fsm::RUNNING;
-}
-
-void setup_bt() {
-    BLEWrapper::setup();
-    fsm_set_state_NOT_CONNECTED_TO_BT();
 }
 
 void loop() {
     fsm.loop();
-//    switch (state) {
-//        case Fsm::NOT_CONNECTED_TO_WHEEL:
-//            run_not_connected_to_wheel();
-//            break;
-//        case Fsm::DISPLAYING_FIRMWARE:
-//            display_firmware();
-//            break;
-//        case Fsm::BT_NOT_STARTED:
-//            setup_bt();
-//            break;
-//        case Fsm::NOT_CONNECTED_TO_BT:
-//            break;
-//        case Fsm::RUNNING:
-//            wheel->transferData();
-//            wheel->process();
-//            send_hid_report();
-//            break;
-//    }
-}
-
-void loop3() {
-#ifdef IS_USB
-    // Fetching HID packet
-    uint16_t hid_size;
-    hid_size = Joystick.recv(&hid_pck, 0);
-    if (hid_size > 0) {
-        wheel->receive_hid_from_host(1, hid_size, hid_pck);
-    }
-#endif
-
-    switch (detectWheelType()) {
-        case CSW_WHEEL:
-            wheel = &csw_wheel;
-            wheel->transferData();
-            wheel->process();
-            break;
-        case CSL_WHEEL:
-            wheel = &csl_wheel;
-            wheel->transferData();
-            wheel->process();
-            break;
-        case MCL_WHEEL:
-            wheel = &mcl_wheel;
-            wheel->transferData();
-            wheel->process();
-            break;
-        default:
-            // no WheelBase  ?
-            wheel->clear();
-            delay(10);
-    }
-    send_hid_report();
-
-}
-
-void send_hid_report() {// Send HID report (all inputs)
-#ifdef IS_USB
-//TODO: Check for overflow 70min
-    uint32_t now = micros();
-    if (now >= usb_time) {
-        uint32_t delta_t = now - usb_time;
-#ifdef HAS_DEBUG
-        Serial.println(String("usb loop time : ") + delta_t);
-#endif
-
-        if (delta_t >= MAX_SPEED) {
-// delayMicroseconds(MAX_SPEED - delta_t);
-#ifdef HAS_DEBUG
-            Serial.println(String("usb loop time pre send: ") + (micros() - usb_time));
-#endif
-            Joystick.send_now();
-#ifdef HAS_DEBUG
-            Serial.println(String("usb loop time post send: ") + (micros() - usb_time));
-#endif
-            usb_time = micros();
-        } else {
-#ifdef HAS_DEBUG
-            Serial.println(String("skipping report"));
-#endif
-        }
-    }
-
-    // rotary_debounce = 0;
-#else
-    uint32_t timout;
-        timout = micros() - timing;
-        if (timout > max_delay || (in_changed && timout > 10000))
-        {
-          // hid_data[3] = (hid_data[3]+1)&0xff;
-          iwrap_send_data(main_link_id, sizeof(hid_data), hid_data, iwrap_mode);
-          timing = micros();
-#ifdef HAS_DEBUG
-          if (rotary_debounce != 0)
-            Serial.println(String("RESET!!!!!!!!!ROTARY : ") + rotary_value);
-          if (in_changed)
-            Serial.println("input sent");
-#endif
-          in_changed = false;
-          // rotary_debounce = 0;
-        }
-#endif
-
-    // timing = micros() - timing;
-// if(timing > 550)  Serial.println(String("timing: ") + timing);
-// some delay
-    idle();
-}
-
-void idle() {
-#ifndef IS_USB
-    delay(1);
-#endif
 }
