@@ -5,6 +5,7 @@
 #define BLEDIS_MODEL "Bluefruit Feather 52"
 #define BLEDIS_NAME "Bluefruit52 CJ"
 
+//PNP_ID is used for USB VID and PID when vendor id source is USB forum
 #define USE_PNP_ID true
 #define VENDOR_ID 0x0eb7
 #define PRODUCT_ID 0x038e
