@@ -31,7 +31,7 @@ uint16_t productVersion = PRODUCT_VERSION;
 char pnpId[7] = {
         0x02, //Vendor ID Source, 2 = USB Implementer’s Forum assigned Vendor ID value
         LSO(vendorId), MSO(vendorId), //Vendor ID LSO MSO
-        LSO(productId), MSO(vendorId), //Product ID LSO MSO
+        LSO(productId), MSO(productId), //Product ID LSO MSO
         LSO(productVersion), MSO(productVersion)  //Product Version LSO MSO
 };
 
