@@ -29,11 +29,18 @@
 #include "Debouncer.h"
 #include "Joystick.h"
 #include "wheels/WheelBase.h"
+#include "fsm/WheelFsm.h"
 #include "BLEWrapper.h"
 
 #define MAX_SPEED 50000
 
 uint8_t hid_data[35];
+
+class csw_wheel csw_wheel;
+class mcl_wheel mcl_wheel;
+class csl_wheel csl_wheel;
+WheelBase initial_wheel;
+WheelBase *wheel = &initial_wheel;
 
 void setup();
 
@@ -48,38 +55,19 @@ uint32_t usb_time;
 
 uint8_t hid_pck[7];
 
-csw_wheel csw_wheel;
-mcl_wheel mcl_wheel;
-csl_wheel csl_wheel;
-WheelBase initial_wheel;
-
-WheelBase *wheel = &initial_wheel;
-
 uint8_t main_link_id = 1;
+
+WheelFsm fsm;
 
 void fsm_set_state_RUNNING();
 
-
 void send_hid_report();
 
-void connected(uint16_t conn) {
-    Serial.println("Connected!");
-    fsm_set_state_RUNNING();
-}
-
-void disconnected(uint16_t conn_hdl, uint8_t reason) {
-    Serial.println("Disconnected!");
-}
 
 void setup() {
     fsetup();
-
     wheel->clear();
     setup2();
-
-    BLEWrapper::setConnectCallback(connected);
-    BLEWrapper::setDisconnectCallback(disconnected);
-
 #ifdef HAS_DEBUG
 
     Serial.begin(115200);
@@ -133,60 +121,26 @@ void setup_bt() {
     fsm_set_state_NOT_CONNECTED_TO_BT();
 }
 
-void run_not_connected_to_wheel() {
-    wheel_type wheelT = detectWheelType();
-    if (wheelT == NO_WHEEL) {
-        return;
-    }
-
-    switch (wheelT) {
-        case CSW_WHEEL:
-            wheel = &csw_wheel;
-            break;
-        case CSL_WHEEL:
-            wheel = &csl_wheel;
-            break;
-        case MCL_WHEEL:
-            wheel = &mcl_wheel;
-            break;
-        default:
-            break;
-    }
-
-    wheel->clear();
-    fsm_set_state_DISPLAYING_FIRMWARE();
-}
-
-void display_firmware() {
-    if (millis() - fwShownSince >= 4000) {
-        wheel->clear_display();
-        wheel->transferData();
-        fsm_set_state_BT_NOT_STARTED();
-    } else {
-        wheel->display_firmware_version();
-        wheel->transferData();
-    }
-}
-
 void loop() {
-    switch (state) {
-        case Fsm::NOT_CONNECTED_TO_WHEEL:
-            run_not_connected_to_wheel();
-            break;
-        case Fsm::DISPLAYING_FIRMWARE:
-            display_firmware();
-            break;
-        case Fsm::BT_NOT_STARTED:
-            setup_bt();
-            break;
-        case Fsm::NOT_CONNECTED_TO_BT:
-            break;
-        case Fsm::RUNNING:
-            wheel->transferData();
-            wheel->process();
-            send_hid_report();
-            break;
-    }
+    fsm.loop();
+//    switch (state) {
+//        case Fsm::NOT_CONNECTED_TO_WHEEL:
+//            run_not_connected_to_wheel();
+//            break;
+//        case Fsm::DISPLAYING_FIRMWARE:
+//            display_firmware();
+//            break;
+//        case Fsm::BT_NOT_STARTED:
+//            setup_bt();
+//            break;
+//        case Fsm::NOT_CONNECTED_TO_BT:
+//            break;
+//        case Fsm::RUNNING:
+//            wheel->transferData();
+//            wheel->process();
+//            send_hid_report();
+//            break;
+//    }
 }
 
 void loop3() {
