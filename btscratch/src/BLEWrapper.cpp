@@ -19,8 +19,25 @@ BLEDis bledis;
 BLEBatteryService blebat = BLEBatteryService();
 extern BLEHidGeneric hidService;
 
-void BLEWrapper::setupServices() {
 
+uint16_t vendorId = VENDOR_ID;
+uint16_t productId = PRODUCT_ID;
+uint16_t productVersion = PRODUCT_VERSION;
+
+#define LSO(v) (char)(v & 0xFF)
+#define MSO(v) (char)((v >> 8) & 0xFF)
+
+//Structured as per org.bluetooth.characteristic.pnp_id.xml
+char pnpId[7] = {
+        0x02,
+        LSO(vendorId), MSO(vendorId), //Vendor ID LSO MSO
+        LSO(productId), MSO(vendorId), //Product ID LSO MSO
+        LSO(productVersion), MSO(productVersion)  //Product Version LSO MSO
+};
+
+bool BLEWrapper::usePnpId = USE_PNP_ID;
+
+void BLEWrapper::setupServices() {
     Bluefruit.begin();
     Bluefruit.setTxPower(4);    // Check bluefruit.h for supported values
     Bluefruit.setName(BLEDIS_NAME);
@@ -28,7 +45,16 @@ void BLEWrapper::setupServices() {
     // Configure and Start Device Information Service
     bledis.setManufacturer(BLEDIS_MANUFACTURER);
     bledis.setModel(BLEDIS_MODEL);
-    bledis.setSerialNum()
+
+    printPnpId();
+
+    if (usePnpId) {
+        Serial.println(sizeof pnpId);
+        bledis.setPNPID(pnpId, sizeof pnpId);
+    }
+
+    bledis.setModel(BLEDIS_MODEL);
+
     bledis.begin();
 
     /* Start BLEWrapper HID
@@ -54,6 +80,32 @@ void BLEWrapper::setupServices() {
     // Set up and start advertising
     blebat.begin();
 }
+
+void BLEWrapper::printPnpId() {
+    char buf[40];
+    Serial.println("BLE PNP ID:");
+    if (usePnpId) {
+        Serial.println("----------------");
+        sprintf(buf, "Vendor source: %02x", pnpId[0]);
+        Serial.println(buf);
+        sprintf(buf, "Vendor ID (LSO): %02x%02x", pnpId[1], pnpId[2]);
+        Serial.println(buf);
+        sprintf(buf, "VID: %04x", vendorId);
+        Serial.println(buf);
+        sprintf(buf, "Product ID (LSO): %02x%02x", pnpId[3], pnpId[4]);
+        Serial.println(buf);
+        sprintf(buf, "PID: %04x", productId);
+        Serial.println(buf);
+        sprintf(buf, "Product Version (LSO): %02x%02x", pnpId[5], pnpId[6]);
+        Serial.println(buf);
+        sprintf(buf, "Product Version: %04x", productVersion);
+        Serial.println(buf);
+        Serial.println("----------------");
+    } else {
+        Serial.println("BLE PNP ID is disabled");
+    }
+}
+
 
 void BLEWrapper::startAdvertising() {
     // Advertising packet
@@ -89,5 +141,4 @@ void BLEWrapper::setConnectCallback(ble_connect_callback_t fp) {
 
 void BLEWrapper::setDisconnectCallback(ble_disconnect_callback_t fp) {
     Bluefruit.Periph.setDisconnectCallback(fp);
-
 }

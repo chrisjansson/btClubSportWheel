@@ -15,6 +15,9 @@ public:
 private:
     static void startAdvertising();
     static void setupServices();
+
+    static void printPnpId();
+    static bool usePnpId;
 };
 
 
