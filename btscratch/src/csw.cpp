@@ -29,6 +29,7 @@
 #include "Debouncer.h"
 #include "Joystick.h"
 #include "wheels/WheelBase.h"
+#include "BLEWrapper.h"
 
 #define MAX_SPEED 50000
 
@@ -56,11 +57,28 @@ WheelBase *wheel = &initial_wheel;
 
 uint8_t main_link_id = 1;
 
+void fsm_set_state_RUNNING();
+
+
+void send_hid_report();
+
+void connected(uint16_t conn) {
+    Serial.println("Connected!");
+    fsm_set_state_RUNNING();
+}
+
+void disconnected(uint16_t conn_hdl, uint8_t reason) {
+    Serial.println("Disconnected!");
+}
+
 void setup() {
     fsetup();
 
     wheel->clear();
     setup2();
+
+    BLEWrapper::setConnectCallback(connected);
+    BLEWrapper::setDisconnectCallback(disconnected);
 
 #ifdef HAS_DEBUG
 
@@ -79,9 +97,11 @@ void setup() {
     usb_time = micros();
 }
 
+
 enum Fsm {
     NOT_CONNECTED_TO_WHEEL,
     DISPLAYING_FIRMWARE,
+    BT_NOT_STARTED,
     NOT_CONNECTED_TO_BT,
     RUNNING
 };
@@ -96,8 +116,21 @@ void fsm_set_state_DISPLAYING_FIRMWARE() {
     fwShownSince = millis();
 }
 
+void fsm_set_state_BT_NOT_STARTED() {
+    state = Fsm::BT_NOT_STARTED;
+}
+
 void fsm_set_state_NOT_CONNECTED_TO_BT() {
     state = Fsm::NOT_CONNECTED_TO_BT;
+}
+
+void fsm_set_state_RUNNING() {
+    state = Fsm::RUNNING;
+}
+
+void setup_bt() {
+    BLEWrapper::setup();
+    fsm_set_state_NOT_CONNECTED_TO_BT();
 }
 
 void run_not_connected_to_wheel() {
@@ -128,7 +161,7 @@ void display_firmware() {
     if (millis() - fwShownSince >= 4000) {
         wheel->clear_display();
         wheel->transferData();
-        fsm_set_state_NOT_CONNECTED_TO_BT();
+        fsm_set_state_BT_NOT_STARTED();
     } else {
         wheel->display_firmware_version();
         wheel->transferData();
@@ -143,9 +176,15 @@ void loop() {
         case Fsm::DISPLAYING_FIRMWARE:
             display_firmware();
             break;
+        case Fsm::BT_NOT_STARTED:
+            setup_bt();
+            break;
         case Fsm::NOT_CONNECTED_TO_BT:
             break;
         case Fsm::RUNNING:
+            wheel->transferData();
+            wheel->process();
+            send_hid_report();
             break;
     }
 }
@@ -181,8 +220,11 @@ void loop3() {
             wheel->clear();
             delay(10);
     }
+    send_hid_report();
 
-// Send HID report (all inputs)
+}
+
+void send_hid_report() {// Send HID report (all inputs)
 #ifdef IS_USB
 //TODO: Check for overflow 70min
     uint32_t now = micros();
@@ -212,26 +254,26 @@ void loop3() {
     // rotary_debounce = 0;
 #else
     uint32_t timout;
-    timout = micros() - timing;
-    if (timout > max_delay || (in_changed && timout > 10000))
-    {
-      // hid_data[3] = (hid_data[3]+1)&0xff;
-      iwrap_send_data(main_link_id, sizeof(hid_data), hid_data, iwrap_mode);
-      timing = micros();
+        timout = micros() - timing;
+        if (timout > max_delay || (in_changed && timout > 10000))
+        {
+          // hid_data[3] = (hid_data[3]+1)&0xff;
+          iwrap_send_data(main_link_id, sizeof(hid_data), hid_data, iwrap_mode);
+          timing = micros();
 #ifdef HAS_DEBUG
-      if (rotary_debounce != 0)
-        Serial.println(String("RESET!!!!!!!!!ROTARY : ") + rotary_value);
-      if (in_changed)
-        Serial.println("input sent");
+          if (rotary_debounce != 0)
+            Serial.println(String("RESET!!!!!!!!!ROTARY : ") + rotary_value);
+          if (in_changed)
+            Serial.println("input sent");
 #endif
-      in_changed = false;
-      // rotary_debounce = 0;
-    }
+          in_changed = false;
+          // rotary_debounce = 0;
+        }
 #endif
 
     // timing = micros() - timing;
-    // if(timing > 550)  Serial.println(String("timing: ") + timing);
-    // some delay
+// if(timing > 550)  Serial.println(String("timing: ") + timing);
+// some delay
     idle();
 }
 
