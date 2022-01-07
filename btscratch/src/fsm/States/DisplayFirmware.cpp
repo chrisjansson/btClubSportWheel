@@ -13,7 +13,7 @@ void DisplayFirmware::enter(WheelFsm *fsm) {
 void DisplayFirmware::loop(WheelFsm *fsm) {
     wheel->display_firmware_version();
     wheel->transferData();
-    if (_startTime + 4000 >= millis()) {
+    if (_startTime + 2000 >= millis()) {
         return;
     }
 
