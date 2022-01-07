@@ -23,6 +23,7 @@
 #include <wheels/csw_wheel.h>
 #include <wheels/mcl_wheel.h>
 #include <wheels/csl_wheel.h>
+#include <fsm/States/NotConnected.h>
 #include "Arduino.h"
 #include "fsm/WheelFsm.h"
 
@@ -40,6 +41,8 @@ void setup() {
     fsetup();
     wheel->clear();
     setup2();
+    fsm.setState(NotConnected::create());
+
 #ifdef HAS_DEBUG
 
     Serial.begin(115200);

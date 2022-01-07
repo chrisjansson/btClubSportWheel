@@ -7,18 +7,21 @@
 #include "WheelState.h"
 #include "States/States.h"
 
-WheelFsm::WheelFsm()
-{
-    currentState = NotConnected::create();
+WheelFsm::WheelFsm() {
 }
 
-void WheelFsm::setState(WheelState* newState)
-{
-    currentState->exit(this);
+void WheelFsm::setState(WheelState *newState) {
+    if (currentState != nullptr) {
+        currentState->exit(this);
+    }
     currentState = newState;
-    currentState->enter(this);
+    if (currentState != nullptr) {
+        currentState->enter(this);
+    }
 }
 
 void WheelFsm::loop() {
-    currentState->loop(this);
+    if (currentState != nullptr) {
+        currentState->loop(this);
+    }
 }

@@ -16,9 +16,11 @@
 #include "manifest.h"
 #include "joystick_report_builder.h"
 #include "JoystickHid.h"
+#include "logger.h"
 
 
 JoystickHid hidService = JoystickHid();
+Print* logger = &nullLogger;
 
 void setup2()
 {
@@ -35,6 +37,8 @@ void setup2()
     Serial.println();
     Serial.println("Enter the character(s) to send:");
     Serial.println();
+
+    logger = &Serial;
 }
 //
 //int loops = 0;
