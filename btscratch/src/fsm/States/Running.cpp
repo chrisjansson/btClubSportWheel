@@ -8,7 +8,7 @@
 static uint32_t timing;
 static uint32_t usb_time;
 
-#define MAX_SPEED 50000
+#define MAX_SPEED 25000
 
 static void idle();
 
