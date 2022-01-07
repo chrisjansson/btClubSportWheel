@@ -7,6 +7,7 @@
 
 #include "../WheelState.h"
 #include <bluefruit.h>
+#include "../../logger.h"
 
 class ConnectBle : public WheelState {
 public:
@@ -20,44 +21,54 @@ public:
 
 private:
     WheelBase *wheel;
+    bool _isConnected = false;
+    uint16_t _mtu = 0;
+
     static ConnectBle instance;
 
-    static bool _isConnected;
+    static void connected(uint16_t handle) {
+        logger->println("Connected");
 
-    static void connected(uint16_t connh) {
-        Serial.println("Connected!");
-        _isConnected = true;
-        BLEConnection* conn = Bluefruit.Connection(connh);
-        Serial.println("Connected");
+        BLEConnection *conn = Bluefruit.Connection(handle);
+
+        char s[40];
 
         // request PHY changed to 2MB
-        Serial.println("Request to change PHY");
-        Serial.println(conn->getPHY());
+        sprintf(s, "Request to change PHY: %d", conn->getPHY());
+        logger->println(s);
         conn->requestPHY();
 
         // request to update data length
-        Serial.println("Request to change Data Length");
-        Serial.println(conn->getDataLength());
+        sprintf(s, "Request to change Data Length: %d", conn->getDataLength());
+        logger->println(s);
         conn->requestDataLengthUpdate();
 
         // request mtu exchange
-        Serial.println("Request to change MTU");
+        sprintf(s, "Request to change MTU: %d", conn->getMtu());
+        logger->println(s);
         conn->requestMtuExchange(247);
 
+        //Capture these with event handler instead
+        //        Bluefruit.setEventCallback()
         delay(1000);
+        uint16_t mtu = conn->getMtu();
+        instance._mtu = mtu;
+        sprintf(s, "PHY: %d", conn->getPHY());
+        logger->println(s);
+        sprintf(s, "Data Length: %d", (conn->getDataLength()));
+        logger->println(s);
+        sprintf(s, "MTU: %d", mtu);
+        logger->println(s);
 
-        Serial.println(conn->getMtu());
-        Serial.println(conn->getDataLength());
-        Serial.println(conn->getPHY());
-
-        //TODO: verify mtu and datalength
+        instance._isConnected = true;
 
     }
 
     static void disconnected(uint16_t conn_hdl, uint8_t reason) {
-        Serial.println("Disconnected!");
-        _isConnected = false;
+        logger->println("Disconnected!");
+        instance._isConnected = false;
     }
+
 };
 
 

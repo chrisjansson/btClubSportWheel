@@ -21,6 +21,13 @@ void ConnectBle::loop(WheelFsm *fsm) {
         return;
     }
 
+    if (_mtu - 3 < JOYSTICK_INPUT_REPORT_SIZE) {
+        char s[40];
+        sprintf(s, "MTU: %d is to low. Requires at least: %d", _mtu, JOYSTICK_INPUT_REPORT_SIZE + 3);
+        logger->println(s);
+        return;
+    }
+
     auto nextState = Running::create(wheel);
     fsm->setState(nextState);
 }
@@ -31,6 +38,4 @@ ConnectBle *ConnectBle::create(WheelBase *wheel) {
 }
 
 ConnectBle ConnectBle::instance = nullptr;
-bool ConnectBle::_isConnected = false;
-
 
