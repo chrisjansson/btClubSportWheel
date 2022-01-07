@@ -15,8 +15,10 @@
 #include <bluefruit.h>
 #include "manifest.h"
 #include "joystick_report_builder.h"
+#include "JoystickHid.h"
 
-BLEHidGeneric hidService = BLEHidGeneric(1, 1, 0);
+
+JoystickHid hidService = JoystickHid();
 
 void setup2()
 {

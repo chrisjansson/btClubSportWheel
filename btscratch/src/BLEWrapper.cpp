@@ -9,6 +9,7 @@
 #include "joystick_report_descriptor.h"
 #include "joystick_report_builder.h"
 #include "battery_service.h"
+#include "JoystickHid.h"
 
 void BLEWrapper::setup() {
     setupServices();
@@ -17,7 +18,7 @@ void BLEWrapper::setup() {
 
 BLEDis bledis;
 BLEBatteryService blebat = BLEBatteryService();
-extern BLEHidGeneric hidService;
+extern JoystickHid hidService;
 
 
 uint16_t vendorId = VENDOR_ID;
