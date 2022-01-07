@@ -5,9 +5,9 @@
 #ifndef BTSCRATCH_JOYSTICKHID_H
 #define BTSCRATCH_JOYSTICKHID_H
 
-
 #include <services/BLEHidGeneric.h>
 #include "joystick_report_descriptor.h"
+#include "manifest.h"
 
 static uint16_t input_report_len[1] = { JOYSTICK_INPUT_REPORT_SIZE };
 
@@ -19,7 +19,10 @@ public:
 
     void init() {
         setReportMap(joystick_report_desc, sizeof joystick_report_desc);
+
+#ifdef USE_PNP_ID
         setReportLen(input_report_len, nullptr, nullptr);
+#endif
     }
 };
 

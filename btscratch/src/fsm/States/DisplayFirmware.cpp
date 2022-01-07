@@ -22,7 +22,6 @@ void DisplayFirmware::loop(WheelFsm *fsm) {
 }
 
 void DisplayFirmware::exit(WheelFsm *fsm) {
-
     wheel->clear_display();
     wheel->transferData();
 }

@@ -23,7 +23,7 @@
 #include <wheels/csw_wheel.h>
 #include <wheels/mcl_wheel.h>
 #include <wheels/csl_wheel.h>
-#include <fsm/States/NotConnected.h>
+#include <fsm/States/DetectWheel.h>
 #include "Arduino.h"
 #include "fsm/WheelFsm.h"
 
@@ -41,7 +41,7 @@ void setup() {
     fsetup();
     wheel->clear();
     setup2();
-    fsm.setState(NotConnected::create());
+    fsm.setState(DetectWheel::create());
 
 #ifdef HAS_DEBUG
 

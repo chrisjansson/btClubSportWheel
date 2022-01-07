@@ -5,7 +5,7 @@
 #ifndef BTSCRATCH_STATES_H
 #define BTSCRATCH_STATES_H
 
-#include "NotConnected.h"
+#include "DetectWheel.h"
 #include "DisplayFirmware.h"
 #include "ConnectBle.h"
 #include "Running.h"

@@ -2,7 +2,7 @@
 // Created by chris on 2022-01-05.
 //
 
-#include "NotConnected.h"
+#include "DetectWheel.h"
 #include "../../fanatec.h"
 #include "States.h"
 #include "../../logger.h"
@@ -10,7 +10,7 @@
 Adafruit_NeoPixel pixel
 = Adafruit_NeoPixel(1, PIN_NEOPIXEL);
 
-void NotConnected::loop(WheelFsm *fsm) {
+void DetectWheel::loop(WheelFsm *fsm) {
     wheel_type wheelT = detectWheelType();
     if (wheelT == NO_WHEEL) {
         return;
@@ -44,13 +44,13 @@ void NotConnected::loop(WheelFsm *fsm) {
     fsm->setState(DisplayFirmware::create(wheel));
 }
 
-NotConnected NotConnected::instance = NotConnected();
+DetectWheel DetectWheel::instance = DetectWheel();
 
-NotConnected *NotConnected::create() {
-    return &NotConnected::instance;
+DetectWheel *DetectWheel::create() {
+    return &DetectWheel::instance;
 }
 
-void NotConnected::enter(WheelFsm *fsm) {
+void DetectWheel::enter(WheelFsm *fsm) {
     logger->println("Detecting wheel...");
     pixel.begin();
     pixel.setBrightness(25);
