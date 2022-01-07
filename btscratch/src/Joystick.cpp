@@ -11,6 +11,7 @@ void Joystick_T::button(uint8_t button, bool val)
 
 void Joystick_T::setWheel(unsigned int val)
 {
+    _joystickReportBuilder.setWheel(val);
 }
 
 void Joystick_T::X(unsigned int val)

@@ -115,8 +115,16 @@ static uint8_t joystick_report_desc[] = {
 
 //Changes made to source descriptor:
 //Report id (1) has to specified for the BLE stack to work properly
-
+//Adjust padding for when the report is 32bytes
 #define JOYSTICK_REPORT_ID 0x01
+
+
+#ifdef USE_PNP_ID
+#define JOYSTICK_INPUT_REPORT_SIZE 32
+#else
+#define JOYSTICK_INPUT_REPORT_SIZE 16
+#endif
+
 
 static uint8_t joystick_report_desc[] = {
 
@@ -150,7 +158,7 @@ static uint8_t joystick_report_desc[] = {
 //        //   no padding ( 32 )
 //
 //
-        // Hat switch (4bits)
+        // Hat switch (8bits)
         0x05, 0x01,                    //   USAGE_PAGE (Generic Desktop)
         0x09, 0x39,                    //   USAGE (Hat)
         0x15, 0x00,                    //   LOGICAL_MINIMUM (0)
@@ -161,12 +169,14 @@ static uint8_t joystick_report_desc[] = {
         0x75, 0x08,                    //   REPORT_SIZE (8)
         0x95, 0x01,                    //   REPORT_COUNT (1)
         0x81, 0x42,                    //   INPUT (Data,Var,Abs)
-        // total 124
+        // total 128
 
-//         padding 4
-//        0x95, 0x01,                    //   REPORT_COUNT (33)
-//        0x75, 0x04,                    //   REPORT_SIZE (4)
-//        0x81, 0x01,                    //   INPUT (Cnst,Ary,Abs)
+#ifdef USE_PNP_ID
+        0x95, 0x10,                    //   REPORT_COUNT (32)
+        0x75, 0x08,                    //   REPORT_SIZE (4)
+        0x81, 0x01,                    //   INPUT (Cnst,Ary,Abs)
+#endif
+
 
         // Total size : 256bits -> 32bytes (JOYSTICK_SIZE)
 

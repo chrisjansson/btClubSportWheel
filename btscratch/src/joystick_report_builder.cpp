@@ -45,3 +45,9 @@ uint8_t* JoystickReportBuilder::getReport() {
 unsigned int JoystickReportBuilder::getReportLength() {
     return sizeof(_report)/sizeof(*_report);
 }
+
+void JoystickReportBuilder::setWheel(uint8_t value) {
+#if JOYSTICK_INPUT_REPORT_SIZE == 32
+    _report[29] = value & 0xFF;
+#endif
+}

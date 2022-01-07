@@ -6,8 +6,6 @@
 #include <Arduino.h>
 #include <bluefruit.h>
 #include "manifest.h"
-#include "joystick_report_descriptor.h"
-#include "joystick_report_builder.h"
 #include "battery_service.h"
 #include "JoystickHid.h"
 
@@ -19,7 +17,6 @@ void BLEWrapper::setup() {
 BLEDis bledis;
 BLEBatteryService blebat = BLEBatteryService();
 extern JoystickHid hidService;
-
 
 uint16_t vendorId = VENDOR_ID;
 uint16_t productId = PRODUCT_ID;
@@ -39,6 +36,7 @@ char pnpId[7] = {
 bool BLEWrapper::usePnpId = USE_PNP_ID;
 
 void BLEWrapper::setupServices() {
+    Bluefruit.configPrphBandwidth(BANDWIDTH_HIGH);
     Bluefruit.begin();
     Bluefruit.setTxPower(4);    // Check bluefruit.h for supported values
     Bluefruit.setName(BLEDIS_NAME);
@@ -47,6 +45,7 @@ void BLEWrapper::setupServices() {
     bledis.setManufacturer(BLEDIS_MANUFACTURER);
     bledis.setModel(BLEDIS_MODEL);
 
+    Bluefruit.printInfo();
     printPnpId();
 
     if (usePnpId) {
@@ -75,7 +74,7 @@ void BLEWrapper::setupServices() {
      * min = 9*1.25=11.25 ms, max = 12*1.25= 15 ms
      */
     /* Bluefruit.Periph.setConnInterval(9, 12); */
-    hidService.setReportMap(joystick_report_desc, sizeof joystick_report_desc);
+    hidService.init();
     hidService.begin();
 
     // Set up and start advertising

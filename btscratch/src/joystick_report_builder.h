@@ -3,7 +3,7 @@
 
 #include <Arduino.h>
 #include "joystick_report_descriptor.h"
-
+#include "manifest.h"
 /// Report builder for report descriptor in joystick_report_descriptor.h
 class JoystickReportBuilder {
 public:
@@ -13,6 +13,7 @@ public:
     void setAxisY(uint8_t value);
     void setClutch1(uint8_t value);
     void setClutch2(uint8_t value);
+    void setWheel(uint8_t value);
 
     void clear();
 
@@ -23,7 +24,7 @@ public:
     }
 
 private:
-    uint8_t _report[16];
+    uint8_t _report[JOYSTICK_INPUT_REPORT_SIZE];
 };
 
 #endif //BTSCRATCH_JOYSTICK_REPORT_BUILDER_H
