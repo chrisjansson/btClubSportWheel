@@ -25,11 +25,6 @@ void Joystick_T::Y(unsigned int val)
 
 }
 
-int Joystick_T::recv(void *buffer, uint16_t timeout)
-{
-  return 0;
-}
-
 void Joystick_T::clutch1(unsigned int val)
 {
     _joystickReportBuilder.setClutch1(val);

@@ -7,8 +7,6 @@
 class Joystick_T
 {
   public:
-    int recv(void *buffer, uint16_t timeout);
-
     void send_now();
 
     void button(uint8_t button, bool val);

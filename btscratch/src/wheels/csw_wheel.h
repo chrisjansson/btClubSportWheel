@@ -22,6 +22,32 @@ public:
         transferCswData(&_csw_out, &_csw_in, sizeof(_csw_out.raw));
     }
 
+    void set_7seg(uint8_t a, uint8_t b, uint8_t c) override {
+        if (_csw_in.id == CSLMCLGT3) {
+            _csw_out.raw[1] = 0x11;
+            _csw_out.raw[2] = csw7segToAscii(a);
+            _csw_out.raw[3] = csw7segToAscii(b);
+            _csw_out.raw[4] = csw7segToAscii(c);
+        } else {
+            _csw_out.disp[0] = a;
+            _csw_out.disp[1] = b;
+            _csw_out.disp[2] = c;
+        }
+
+#ifdef HAS_DEBUG
+        Serial.println(                    String("HID display: ") + _csw_out.disp[0] + ":" + _csw_out.disp[1] + ":" + _csw_out.disp[2]);
+#endif
+    }
+
+    void set_lights(uint8_t a, uint8_t b) override {
+        if (_csw_out.id != UNIHUB && _csw_in.id != CSLMCLGT3) {
+            _csw_out.leds = (a & 0xff) << 8 | (b & 0xff);
+        }
+#ifdef HAS_DEBUG
+        Serial.println(String("HID leds   : ") + _csw_out.leds);
+#endif
+    }
+
     void process() override {
 #ifdef HAS_DEBUG
         Serial.print("CSW_IN:");

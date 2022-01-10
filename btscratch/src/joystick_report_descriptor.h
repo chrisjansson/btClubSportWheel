@@ -4,6 +4,7 @@
 
 #define JOYSTICK_REPORT_ID 0
 #define JOYSTICK_INPUT_REPORT_SIZE 32
+#define JOYSTICK_OUTPUT_REPORT_SIZE 8
 
 static uint8_t joystick_report_desc[] = {
     0x05, 0x01,                    // USAGE_PAGE (Generic Desktop)

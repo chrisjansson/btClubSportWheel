@@ -8,6 +8,7 @@
 #include "../WheelState.h"
 #include <bluefruit.h>
 #include "../../logger.h"
+#include "Running.h"
 
 class ConnectBle : public WheelState {
 public:
@@ -61,12 +62,15 @@ private:
         logger->println(s);
 
         instance._isConnected = true;
-
     }
 
     static void disconnected(uint16_t conn_hdl, uint8_t reason) {
         logger->println("Disconnected!");
         instance._isConnected = false;
+    }
+
+    static void OnOutputReport(uint16_t conn_hdl, BLECharacteristic *chr, uint8_t *data, uint16_t len) {
+        Running::OnOutputReport(conn_hdl, chr, data, len);
     }
 
 };

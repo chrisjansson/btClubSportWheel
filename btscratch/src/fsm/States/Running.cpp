@@ -84,9 +84,10 @@ void Running::enter(WheelFsm *fsm) {
 uint8_t hid_pck[7];
 
 void Running::loop(WheelFsm *fsm) {
-    uint16_t hid_size;
-    hid_size = Joystick.recv(&hid_pck, 0);
+    uint16_t hid_size = _received;
+    _received = 0;
     if (hid_size > 0) {
+        memcpy(&hid_pck, _outputReport, hid_size);
         wheel->receive_hid_from_host(1, hid_size, hid_pck);
     }
 
@@ -101,5 +102,3 @@ Running *Running::create(WheelBase *wheel) {
 }
 
 Running Running::instance = nullptr;
-
-
