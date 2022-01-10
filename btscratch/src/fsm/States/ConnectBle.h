@@ -50,7 +50,7 @@ private:
 
         //Capture these with event handler instead
         //        Bluefruit.setEventCallback()
-        delay(1000);
+        delay(2000);
         uint16_t mtu = conn->getMtu();
         instance._mtu = mtu;
         sprintf(s, "PHY: %d", conn->getPHY());
