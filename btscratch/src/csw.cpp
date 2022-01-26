@@ -26,6 +26,11 @@
 #include <fsm/States/DetectWheel.h>
 #include "Arduino.h"
 #include "fsm/WheelFsm.h"
+#include <Arduino.h>
+#include <bluefruit.h>
+#include "joystick_report_builder.h"
+#include "JoystickHid.h"
+#include "logger.h"
 
 class csw_wheel csw_wheel;
 class mcl_wheel mcl_wheel;
@@ -33,7 +38,25 @@ class csl_wheel csl_wheel;
 WheelBase initial_wheel;
 WheelBase *wheel = &initial_wheel;
 
-void setup2();
+JoystickHid hidService = JoystickHid();
+Print *logger = &nullLogger;
+uint32_t serialStartup = 0;
+uint32_t serialStartupWait = 2000;
+
+void setup2() {
+    serialStartup = millis();
+
+    Serial.begin(115200);
+
+    auto elapsed = millis() - serialStartup;
+    while (!Serial || elapsed < serialStartupWait) {
+        delay(10);   // for nrf52840 with native usb
+    }
+
+    if (Serial) {
+        logger = &Serial;
+    }
+}
 
 WheelFsm fsm;
 
@@ -44,16 +67,12 @@ void setup() {
     fsm.setState(DetectWheel::create());
 
 #ifdef HAS_DEBUG
-
-    Serial.begin(115200);
     Serial.println("MCU Ready");
     for (int i = 0; i < 100; ++i) {
         delay(100);
         Serial.print(".");
         /* code */
     }
-
-    Serial.println("check for active connection...");
 #endif
 }
 
