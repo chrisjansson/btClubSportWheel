@@ -25,10 +25,7 @@
 #include <wheels/csl_wheel.h>
 #include <fsm/States/DetectWheel.h>
 #include "Arduino.h"
-#include "fsm/WheelFsm.h"
-#include <Arduino.h>
 #include <bluefruit.h>
-#include "joystick_report_builder.h"
 #include "JoystickHid.h"
 #include "logger.h"
 
