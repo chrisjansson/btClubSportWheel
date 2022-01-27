@@ -57,9 +57,9 @@ void setupSerial() {
 
 
 void setup() {
+    setupSerial();
     fsetup();
     wheel->clear();
-    setupSerial();
     fsm.setState(DetectWheel::create());
 
     logger->println("MCU Ready");
