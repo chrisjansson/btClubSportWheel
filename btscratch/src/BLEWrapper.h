@@ -1,7 +1,3 @@
-//
-// Created by chris on 2021-12-30.
-//
-
 #ifndef BTSCRATCH_BLEWRAPPER_H
 #define BTSCRATCH_BLEWRAPPER_H
 

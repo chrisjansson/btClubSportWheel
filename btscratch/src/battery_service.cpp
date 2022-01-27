@@ -1,7 +1,3 @@
-//
-// Created by chris on 2021-05-03.
-//
-
 #include "battery_service.h"
 
 #include "BLEService.h"
@@ -9,8 +5,7 @@
 #include "BLEUuid.h"
 #include <Arduino.h>
 #include <bluefruit.h>
-
-
+#include "logger.h"
 
 BLEBatteryService::BLEBatteryService() : BLEService(UUID16_SVC_BATTERY) {
 
@@ -36,15 +31,15 @@ void BLEBatteryService::setBatteryLevel(uint8_t value) {
 }
 
 void BLEBatteryService::cccdCallback(uint16_t conn_hdl, BLECharacteristic* chr, uint16_t cccd_value){
-    Serial.print("CCCD Updated: ");
-    Serial.print(cccd_value);
-    Serial.println("");
+    logger->print("CCCD Updated: ");
+    logger->print(cccd_value);
+    logger->println("");
 
     if(chr->uuid == UUID16_CHR_BATTERY_LEVEL) {
         if (chr->indicateEnabled(conn_hdl)) {
-            Serial.println("Battery service 'Indicate' enabled");
+            logger->println("Battery service 'Indicate' enabled");
         } else {
-            Serial.println("Battery service 'Indicate' disabled");
+            logger->println("Battery service 'Indicate' disabled");
         }
     }
 };

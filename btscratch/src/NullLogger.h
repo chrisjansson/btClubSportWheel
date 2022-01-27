@@ -1,7 +1,3 @@
-//
-// Created by chris on 2022-01-07.
-//
-
 #ifndef BTSCRATCH_NULLLOGGER_H
 #define BTSCRATCH_NULLLOGGER_H
 

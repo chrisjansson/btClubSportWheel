@@ -1,7 +1,3 @@
-//
-// Created by chris on 2022-01-06.
-//
-
 #ifndef BTSCRATCH_JOYSTICKHID_H
 #define BTSCRATCH_JOYSTICKHID_H
 

@@ -22,7 +22,6 @@ void Joystick_T::X(unsigned int val)
 void Joystick_T::Y(unsigned int val)
 {
     _joystickReportBuilder.setAxisY(val);
-
 }
 
 void Joystick_T::clutch1(unsigned int val)

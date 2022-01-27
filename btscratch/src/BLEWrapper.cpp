@@ -1,7 +1,3 @@
-//
-// Created by chris on 2021-12-30.
-//
-
 #include "BLEWrapper.h"
 #include <Arduino.h>
 #include <bluefruit.h>

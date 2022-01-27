@@ -1,7 +1,6 @@
 #include "joystick_report_builder.h"
 
 #include <Arduino.h>
-#define __ASSERT_USE_STDERR
 #include <assert.h>
 
 void JoystickReportBuilder::setButton(uint8_t button, uint8_t value){

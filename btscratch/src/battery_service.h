@@ -1,7 +1,3 @@
-//
-// Created by chris on 2021-05-03.
-//
-
 #ifndef BTSCRATCH_BATTERY_SERVICE_H
 #define BTSCRATCH_BATTERY_SERVICE_H
 
