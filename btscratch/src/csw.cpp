@@ -36,7 +36,6 @@ WheelBase initial_wheel;
 WheelBase *wheel = &initial_wheel;
 
 JoystickHid hidService = JoystickHid();
-Print *logger = &nullLogger;
 uint32_t serialStartup = 0;
 uint32_t serialStartupWait = 2000;
 

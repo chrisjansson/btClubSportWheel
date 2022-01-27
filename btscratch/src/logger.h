@@ -8,8 +8,7 @@
 #include <Arduino.h>
 #include "NullLogger.h"
 
-static NullLogger nullLogger = NullLogger();
-
+extern NullLogger nullLogger;
 extern Print* logger;
 
 #endif //BTSCRATCH_LOGGER_H

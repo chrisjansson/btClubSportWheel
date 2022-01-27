@@ -20,7 +20,7 @@ public:
     }
 
     void init() {
-        setReportMap(joystick_report_desc, sizeof joystick_report_desc);
+        setReportMap(joystick_report_desc, joystick_report_desc_size);
 
 #ifdef USE_PNP_ID
         setReportLen(input_report_len, output_report_len, nullptr);

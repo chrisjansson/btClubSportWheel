@@ -9,7 +9,7 @@
 
 class NullLogger : public Print {
     size_t write(uint8_t) override {
-
+        return 0;
     }
 };
 
