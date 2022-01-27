@@ -40,13 +40,14 @@ JoystickHid hidService = JoystickHid();
 uint32_t serialStartupWait = 2000;
 
 void setupSerial() {
-    auto serialStartup = millis();
 
     Serial.begin(115200);
 
+    auto serialStartup = millis();
     auto elapsed = millis() - serialStartup;
-    while (!Serial || elapsed < serialStartupWait) {
+    while (!Serial && (serialStartupWait > elapsed)) {
         delay(10);
+        elapsed = millis() - serialStartup;
     }
 
     if (Serial) {
@@ -63,7 +64,7 @@ void setup() {
 
     logger->println("MCU Ready");
     for (int i = 0; i < 100; ++i) {
-        delay(100);
+        delay(10);
         logger->print(".");
     }
 }
