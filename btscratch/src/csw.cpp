@@ -34,19 +34,19 @@ class mcl_wheel mcl_wheel;
 class csl_wheel csl_wheel;
 WheelBase initial_wheel;
 WheelBase *wheel = &initial_wheel;
+WheelFsm fsm;
 
 JoystickHid hidService = JoystickHid();
-uint32_t serialStartup = 0;
 uint32_t serialStartupWait = 2000;
 
-void setup2() {
-    serialStartup = millis();
+void setupSerial() {
+    auto serialStartup = millis();
 
     Serial.begin(115200);
 
     auto elapsed = millis() - serialStartup;
     while (!Serial || elapsed < serialStartupWait) {
-        delay(10);   // for nrf52840 with native usb
+        delay(10);
     }
 
     if (Serial) {
@@ -54,22 +54,18 @@ void setup2() {
     }
 }
 
-WheelFsm fsm;
 
 void setup() {
     fsetup();
     wheel->clear();
-    setup2();
+    setupSerial();
     fsm.setState(DetectWheel::create());
 
-#ifdef HAS_DEBUG
-    Serial.println("MCU Ready");
+    logger->println("MCU Ready");
     for (int i = 0; i < 100; ++i) {
         delay(100);
-        Serial.print(".");
-        /* code */
+        logger->print(".");
     }
-#endif
 }
 
 void loop() {
