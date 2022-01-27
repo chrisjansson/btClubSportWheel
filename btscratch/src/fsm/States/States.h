@@ -1,7 +1,3 @@
-//
-// Created by chris on 2022-01-05.
-//
-
 #ifndef BTSCRATCH_STATES_H
 #define BTSCRATCH_STATES_H
 

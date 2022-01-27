@@ -1,7 +1,3 @@
-//
-// Created by chris on 2022-01-05.
-//
-
 #ifndef BTSCRATCH_WHEELFSM_H
 #define BTSCRATCH_WHEELFSM_H
 
@@ -21,7 +17,7 @@ public:
     void loop();
 
 private:
-    WheelState* currentState;
+    WheelState* currentState{};
 };
 
 
