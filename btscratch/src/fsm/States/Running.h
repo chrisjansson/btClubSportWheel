@@ -16,6 +16,8 @@ public:
 
     void enter(WheelFsm *fsm) override;
 
+    const char * getName() override;
+
     static Running *create(WheelBase *wheel);
 
     static void OnOutputReport(uint16_t conn_hdl, BLECharacteristic *chr, uint8_t *data, uint16_t len) {

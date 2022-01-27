@@ -102,3 +102,7 @@ Running *Running::create(WheelBase *wheel) {
 }
 
 Running Running::instance = nullptr;
+
+const char *Running::getName() {
+    return "Running";
+}

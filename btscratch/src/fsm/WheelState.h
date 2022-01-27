@@ -20,13 +20,19 @@ extern WheelBase *wheel;
 // Forward declaration to resolve circular dependency/include
 class WheelFsm;
 
-class WheelState
-{
+class WheelState {
 public:
-    virtual void enter(WheelFsm* fsm) {}
-    virtual void exit(WheelFsm* fsm) {}
-    virtual void loop(WheelFsm* fsm) {}
+    virtual void enter(WheelFsm *fsm) {}
+
+    virtual void exit(WheelFsm *fsm) {}
+
+    virtual void loop(WheelFsm *fsm) {}
+
     virtual ~WheelState() = default;
+
+    virtual const char* getName() {
+        return "Base state";
+    }
 };
 
 

@@ -13,6 +13,8 @@ public:
     void loop(WheelFsm *fsm) override;
     void enter(WheelFsm *fsm) override;
 
+    const char * getName() override;
+
     static DetectWheel *create();
 private:
     static DetectWheel instance;

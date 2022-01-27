@@ -58,3 +58,7 @@ void DetectWheel::enter(WheelFsm *fsm) {
     pixel.setPixelColor(0, 255, 0, 0);
     pixel.show();
 }
+
+const char *DetectWheel::getName() {
+    return "Detect wheel";
+}

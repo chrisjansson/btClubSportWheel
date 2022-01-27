@@ -18,6 +18,8 @@ public:
 
     void enter(WheelFsm *fsm) override;
 
+    const char * getName() override;
+
     static ConnectBle *create(WheelBase *wheel);
 
 private:

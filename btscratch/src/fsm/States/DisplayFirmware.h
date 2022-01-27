@@ -14,6 +14,9 @@ public:
     void loop(WheelFsm *fsm) override;
     void enter(WheelFsm *fsm) override;
     void exit(WheelFsm *fsm) override;
+
+    const char * getName() override;
+
     static DisplayFirmware *create(WheelBase* wheel);
 private:
     WheelBase* wheel;

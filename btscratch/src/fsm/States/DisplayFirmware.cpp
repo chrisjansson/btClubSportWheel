@@ -36,3 +36,7 @@ DisplayFirmware::DisplayFirmware(WheelBase *wheel) : wheel(wheel) {
 }
 
 DisplayFirmware DisplayFirmware::instance = nullptr;
+
+const char *DisplayFirmware::getName() {
+    return "Display firmware";
+}

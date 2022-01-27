@@ -45,3 +45,7 @@ ConnectBle *ConnectBle::create(WheelBase *wheel) {
 
 ConnectBle ConnectBle::instance = nullptr;
 
+const char *ConnectBle::getName() {
+    return "Connect BLE";
+}
+
