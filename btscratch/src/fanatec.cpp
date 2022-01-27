@@ -108,7 +108,6 @@ wheel_type detectWheelType() {
 // Fetch first byte from SPI transaction for protocol detection
 uint8_t getFirstByte() {
     uint8_t firstByte;
-    uint8_t buf;
     // Send packet, twice (see transferCslData)
     for (int z = 0; z < 2; z++) {
         SPI.beginTransaction(settingsA);
@@ -131,7 +130,7 @@ uint8_t getFirstByte() {
             Serial.println("csw: fast forward to next transaction");
 #endif
             for (int i = 0; i <= 31; i++) {
-                buf = SPI.transfer(0x00);
+                SPI.transfer(0x00);
 #ifdef HAS_DEBUG
                 Serial.print(buf, HEX);
                 Serial.print(":");
@@ -147,7 +146,7 @@ uint8_t getFirstByte() {
             Serial.println("csw: flushing buffer & fast forward to next transaction");
 #endif
             for (int i = 0; i <= (31 * 2); i++) {
-                buf = SPI.transfer(0x00);
+                SPI.transfer(0x00);
 #ifdef HAS_DEBUG
                 Serial.print(buf, HEX);
                 Serial.print(":");
@@ -177,7 +176,7 @@ uint8_t getFirstByte() {
                     Serial.println("mcl: Fast Forward to next transaction");
 #endif
                     for (int i = 0; i < 31; i++) {
-                        buf = SPI.transfer(0x00);
+                        SPI.transfer(0x00);
 #ifdef HAS_DEBUG
                         Serial.print(buf, HEX);
                         Serial.print(":");
