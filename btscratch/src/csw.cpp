@@ -58,15 +58,17 @@ void setupSerial() {
 
 void setup() {
     setupSerial();
-    fsetup();
-    wheel->clear();
-    fsm.setState(DetectWheel::create());
 
     logger->println("MCU Ready");
     for (int i = 0; i < 100; ++i) {
         delay(10);
         logger->print(".");
     }
+
+    fsetup();
+    wheel->clear();
+    fsm.setState(DetectWheel::create());
+
 }
 
 void loop() {
