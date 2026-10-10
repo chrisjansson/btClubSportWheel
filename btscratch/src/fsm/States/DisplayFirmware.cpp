@@ -1,19 +1,34 @@
-//
-// Created by chris on 2022-01-05.
-//
-
 #include "DisplayFirmware.h"
 #include <Arduino.h>
 #include "States.h"
 
+#define VBATPIN A6
+
+float readBatterVoltage() {
+    float batteryVoltage = analogRead(VBATPIN);
+    batteryVoltage *= 2;    // we divided by 2, so multiply back
+    batteryVoltage *= 3.6;  // Multiply by 3.6V, our reference voltage
+    batteryVoltage /= 1024; // convert to voltage
+    return batteryVoltage;
+}
+
+
 void DisplayFirmware::enter(WheelFsm *fsm) {
     _startTime = millis();
+    _voltage = readBatterVoltage();
 }
 
 void DisplayFirmware::loop(WheelFsm *fsm) {
-    wheel->display_firmware_version();
-    wheel->transferData();
     if (_startTime + 2000 >= millis()) {
+        wheel->display_firmware_version();
+        wheel->transferData();
+        return;
+    }
+
+    if (_startTime + 4000 >= millis()) {
+        wheel->display_battery_voltage(_voltage);
+        wheel->transferData();
+
         return;
     }
 

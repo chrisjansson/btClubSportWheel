@@ -177,6 +177,10 @@ public:
 
     }
 
+    virtual void display_battery_voltage(float voltage) {
+
+    }
+
 private:
     Debouncer _hatDebouncer = Debouncer();
     Debouncer *_buttonDebouncers = new Debouncer[89];

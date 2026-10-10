@@ -5,6 +5,7 @@
 #ifndef BTSCRATCH_CSW_WHEEL_H
 #define BTSCRATCH_CSW_WHEEL_H
 
+#include <logger.h>
 #include "WheelBase.h"
 #include "../fanatec.h"
 
@@ -20,6 +21,23 @@ public:
         // Read Fanatec Packet
         //csw_out.raw[9] = 0x0F; // xbox light
         transferCswData(&_csw_out, &_csw_in, sizeof(_csw_out.raw));
+    }
+
+    void display_battery_voltage(float voltage) override {
+        uint8_t intVoltage = (int8_t) (voltage * 10);
+        char buf[4];
+        size_t len = sprintf(buf, "%d", intVoltage);
+        logger->println(buf);
+        if (len > 0) {
+            _csw_out.disp[0] = csw_ascii_to_7seg(buf[0]);
+
+        }
+        if (len > 1) {
+            _csw_out.disp[1] = csw_ascii_to_7seg(buf[1]);
+        }
+        if(len > 2){
+            _csw_out.disp[2] = csw_ascii_to_7seg(buf[2]);
+        }
     }
 
     void set_7seg(uint8_t a, uint8_t b, uint8_t c) override {

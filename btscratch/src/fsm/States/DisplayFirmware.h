@@ -23,6 +23,7 @@ private:
     static DisplayFirmware instance;
 
     uint32_t _startTime{};
+    float _voltage{};
 };
 
 
